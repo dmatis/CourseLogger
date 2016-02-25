@@ -1,5 +1,1 @@
-Project Members:
-Darren Matis
-Callum Mathers
-Christine Legge
-Jason Masih
+CS304 Project
