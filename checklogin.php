@@ -1,6 +1,6 @@
 <html>
 <?php
-session_save_path("/home/f/f3w8/php_sessions");
+session_save_path("../../php_sessions");
 session_start();
 include 'executeQueries.php';
 
@@ -18,7 +18,7 @@ if ($db_conn) {
 } 
 
 if(empty($isProf)){
-	echo"<p>Not a prof, searching student database</p>";
+	echo"<p>Searching Student database</p>";
 	$stid = oci_parse($db_conn, "create table memb as select * from members");
 	oci_execute($stid);
 

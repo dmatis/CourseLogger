@@ -1,3 +1,12 @@
+<?php
+session_save_path("../../php_session");
+session_start();
+
+if(!isset($_SESSION['myusername'])){
+	header("location:main_login.php");
+}
+?>
+
 <!DOCTYPE HTML>
 <html>
 <head>
