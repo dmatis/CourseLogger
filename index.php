@@ -17,15 +17,6 @@
 </head>
 <body>
 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
-</head>
-<body>
     <div id="wrapper">
 
         <!-- Sidebar -->
@@ -46,20 +37,25 @@
                     <a href="#">Overview</a>
                 </li>
                 <li>
-                    <a href="#">About</a>
+                    <a href="logout.php">Logout</a>
                 </li>
             </ul>
         </div>
         <!-- /#sidebar-wrapper -->
 
 
-    <div class="jumbotron">
-	<h1>CS304 TaskLogger</h1>
-	<p class="lead">Reset the Student Table</p>
-	<form method="POST" action="index.php">   
-	<p><input class="btn btn-lg btn-success" type="submit" value="Reset" name="reset"></p>
-	</form>
-    </div>
+    <div id="page-content-wrapper">
+	<div class="container-fluid">
+	<div class="row">
+		<div class="col-lg-12">
+		<h1>CS304 TaskLogger</h1>
+		<p class="lead">Reset the Student Table</p>
+		<form method="POST" action="index.php">   
+		<p><input class="btn btn-lg btn-success" type="submit" value="Reset" name="reset"></p>
+		</form>
+    		</div>
+	</div>
+	</div>
 
 <h3>Insert record into Student table:</h3>
 <div class="container">
@@ -172,14 +168,29 @@ function executeBoundSQL($cmdstr, $list) {
 }
 
 function printResult($result) { //prints results from a select statement
-	echo '<div class="table-striped"><table id="resultTable">';
-	echo '<thead><tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Major</th></tr></thead><tbody>';
-
-	while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
-		echo "<tr><td>".$row["ID"]."</td><td>".$row["FNAME"]."</td><td>".$row["LNAME"]."</td><td>".$row["MAJOR"]."</td></tr>";
-		//echo $row[0];
-	}
-	echo '</tbody></table></div>';
+?>
+<table id="resultTable">
+    <thead>
+        <tr>
+            <th width="10%">ID</th>
+            <th width="10%">First Name</th>
+            <th width="10%">Last Name</th>
+            <th width="10%">Major</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+	while ($row = OCI_Fetch_Array($result, OCI_BOTH)) : ?>
+	<tr>
+        <td><?php echo $row["ID"]; ?></td>
+        <td><?php echo $row["FNAME"]; ?></td>
+        <td><?php echo $row["LNAME"];  ?></td>
+        <td><?php echo $row["MAJOR"]; ?></td>
+	</tr>
+        <?php endwhile; ?>
+    </tbody>
+</table>
+<?php
 }
 
 // Connect Oracle...
@@ -306,14 +317,23 @@ if ($db_conn) {
      OCI_RETURN_LOBS - return the value of a LOB of the descriptor.  
      Default mode is OCI_BOTH.  */
 ?>
-/* Script to sort the table */
-//<script>
-//	$(document).ready(function(){
-//	$(function(){
-//		$("#resultTable").tablesorter();
-//		});
-//	});
-//</script>
+</div>
+</div>
+
+    <script>
+	$(document).ready(function(){
+	$(function(){
+		$("#resultTable").tablesorter();
+		});
+	});
+    </script>
+
+    <script>
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+    </script>
 
 </body>
 </html>
