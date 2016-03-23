@@ -1,5 +1,5 @@
 <?php
-session_save_path("../../php_session");
+ini_set('session.save_path',realpath(dirname($_SERVER['DOCUMENT_ROOT']) . '/../php_sessions'));
 session_start();
 
 if(!isset($_SESSION['myusername'])){

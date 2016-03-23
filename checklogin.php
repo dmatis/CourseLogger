@@ -1,6 +1,7 @@
 <html>
 <?php
-session_save_path("../../php_sessions");
+//session_save_path("../../php_sessions");
+ini_set('session.save_path',realpath(dirname($_SERVER['DOCUMENT_ROOT']) . '/../php_sessions'));
 session_start();
 include 'executeQueries.php';
 
@@ -15,16 +16,19 @@ if ($db_conn) {
 } else {
   $err = OCIError();
   echo "Oracle Error " . $err['message'];
-} 
+}
+ 
+$myusername = $_POST['myusername'];
+$mypassword = $_POST['mypassword'];
 
 if(empty($isProf)){
 	echo"<p>Searching Student database</p>";
-	$stid = oci_parse($db_conn, "create table memb as select * from members");
+	$stid = oci_parse($db_conn, "create table memb as select * from members where username='".$myusername."' and password='".$mypassword."'");
 	oci_execute($stid);
 
 } else {
 	echo"<p>Searching Prof database</p>";
-	$stid = oci_parse($db_conn, "create table memb as select * from profs");
+	$stid = oci_parse($db_conn, "create table memb as select * from profs where username='".$myusername."' and password='".$mypassword."'");
 	oci_execute($stid);
 }
 
@@ -32,18 +36,11 @@ if(empty($isProf)){
 //Useful for seeing what's in the _POST session data:
 //print_r($_POST);
 
-$myusername = $_POST['myusername'];
-$mypassword = $_POST['mypassword'];
-
 $tuple = array (
 	":bind1" => $myusername,
 	":bind2" => $mypassword
 );
 $alltuples = array ($tuple);  
-
-//$sql="select * from $tbl_name WHERE username=:bind1 and password=:bind2";
-//$result=executeBoundSQL($sql, $alltuples);
-//OCICommit($db_conn);
 
 $count = oci_num_rows($stid);
 oci_free_statement($stid);
@@ -54,13 +51,17 @@ oci_free_statement($stid);
 oci_close($db_conn);
 
 if($count==1){
-	$_SESSION['myusername'] = $myusername;
+	if(!empty($isProf)){
+		$_SESSION['myprofname'] = $myusername;
+	} else {
+		$_SESSION['myusername'] = $myusername;
+	}
 	$_SESSION['mypassword'] = $mypassword;
-	echo $_SESSION['myusername'];
 	header('Refresh: 1; URL=loginsuccess.php');
 	exit();
 } else {
 	echo "Wrong Username or Password";
+	header('Refresh: 2; URL=main_login.php');
 }
 
 ?>
