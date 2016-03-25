@@ -28,7 +28,7 @@ session_start();
         <div id="sidebar-wrapper">
             <ul class="sidebar-nav">
                 <li class="sidebar-brand">
-                    <a href="#">
+                    <a href="index.php">
                         HOME
                     </a>
                 </li>

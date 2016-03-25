@@ -37,13 +37,13 @@ if(!isset($_SESSION['myusername'])){
                     </a>
                 </li>
                 <li>
-                    <a href="#">Reports</a>
+                    <a href="index.php">Reports</a>
                 </li>
                 <li>
                     <a href="#">Add Time</a>
                 </li>
                 <li>
-                    <a href="#">Overview</a>
+                    <a href="groups.php">Groups</a>
                 </li>
                 <li>
                     <a href="logout.php">Logout</a>
