@@ -67,7 +67,7 @@ CREATE table group_perfoms (
     task_id number,
     group_id number,
     time_spent number,
-    completd varcha2(1),
+    completd varchar2(1),
     grade number,
     primary key(stid, task_id, group_id);
 
