@@ -5,6 +5,7 @@ DROP TABLE course_teach CASCADE CONSTRAINTS;
 DROP TABLE assignment CASCADE CONSTRAINTS;
 DROP TABLE exam CASCADE CONSTRAINTS;
 DROP TABLE performs CASCADE CONSTRAINTS;
+DROP TABLE group_performs CASCADE CONSTRAINTS;
 DROP TABLE task CASCADE CONSTRAINTS;
 
 CREATE table student (
@@ -69,7 +70,7 @@ CREATE table group_perfoms (
     time_spent number,
     completd varchar2(1),
     grade number,
-    primary key(stid, task_id, group_id);
+    primary key(stid, task_id, group_id));
 
 /*Foreign Constraints*/
 ALTER TABLE group_project ADD CONSTRAINT group_task_id
