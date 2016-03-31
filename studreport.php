@@ -125,13 +125,14 @@ function printTasks($result) { //prints the student's tasks
 <table id="reportTable" class="table" style="empty-cells:show">
     <thead>
         <tr>
-            <th width="10%" style="text-align:center">Task ID</th>
-            <th width="10%" style="text-align:center">Description</th>
-            <th width="10%" style="text-align:center">Course Num</th>
-            <th width="10%" style="text-align:center">Dept</th>
-            <th width="10%" style="text-align:center">Deadline</th>
-            <th width="10%" style="text-align:center">Completed?</th>
-            <th width="10%" style="text-align:center">Grade</th>
+            <th width="10%">Task ID</th>
+            <th width="10%">Description</th>
+            <th width="10%">Course Num</th>
+            <th width="10%">Dept</th>
+            <th width="10%">Deadline</th>
+            <th width="10%">Completed?</th>
+            <th width="10%">Grade</th>
+            <th width="10%">Time Spent</th>
         </tr>
     </thead>
     <tbody>
@@ -143,8 +144,9 @@ function printTasks($result) { //prints the student's tasks
         <td><?php echo $row["COURSE_DEPT"];  ?></td>
         <td><?php echo $row["COURSE_NUM"]; ?></td>
         <td><?php echo $row["DEADLINE"];  ?></td>
-        <td><?php echo $row["COMPLETED"]; ?></td>
+        <td><input type="checkbox" <?php if ($row["COMPLETED"] == 'Y') echo "checked='checked'"; ?></td>
         <td><?php echo $row["GRADE"]; ?></td>
+        <td><?php echo $row["TIME_SPENT"]; ?></td>
 	</tr>
         <?php endwhile; ?>
     </tbody>
@@ -172,7 +174,7 @@ if ($db_conn) {
 		header("location: studreport.php");
 	} else {
 		// Select data...
-		$tasks = executePlainSQL("select t.task_id, t.descrip, t.course_dept, t.course_num, t.deadline, p.completed, p.grade from task t, student s, performs p where s.stid='".$_SESSION[myid]."' AND p.stid=s.stid AND t.task_id=p.task_id");
+		$tasks = executePlainSQL("select t.task_id, t.descrip, t.course_dept, t.course_num, t.deadline, p.completed, p.grade, p.time_spent from task t, student s, performs p where s.stid='".$_SESSION[myid]."' AND p.stid=s.stid AND t.task_id=p.task_id");
 		printTasks($tasks);
 	}
 
