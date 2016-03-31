@@ -34,7 +34,7 @@ CREATE table task (
 CREATE table group_project (
 	task_id number,
 	max_size number,
-	primary key(task_id, stid));
+	primary key(task_id));
 
 CREATE table course_teach (
 	course_num number,
