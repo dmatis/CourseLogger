@@ -185,10 +185,10 @@ insert into task values(36, '2016-03-30', 'Essay', 300, 'FREN');
 insert into task values(37, '2016-02-15', 'Book review', 300, 'FREN');
 insert into task values(38, '2016-01-15', 'Assignment 1', 101, 'ASTR');
 
-insert into group_project values(27, 19778125, 4);
-insert into group_project values(6, 19778125, 4);
-insert into group_project values(35, 23895647, 3);
-insert into group_project values(30, 36547890, 2);
+insert into group_project values(27, 4);
+insert into group_project values(6, 4);
+insert into group_project values(35, 3);
+insert into group_project values(30, 2);
 
 insert into assignment values(1, 'Box 1');
 insert into assignment values(2, 'Box 1');
