@@ -5,6 +5,7 @@ DROP TABLE course_teach CASCADE CONSTRAINTS;
 DROP TABLE assignment CASCADE CONSTRAINTS;
 DROP TABLE exam CASCADE CONSTRAINTS;
 DROP TABLE performs CASCADE CONSTRAINTS;
+DROP TABLE group_performs CASCADE CONSTRAINTS;
 DROP TABLE task CASCADE CONSTRAINTS;
 
 CREATE table student (
@@ -33,8 +34,9 @@ CREATE table task (
 
 CREATE table group_project (
 	task_id number,
-	max_size number,
-	primary key(task_id));
+	group_id number,
+    max_size number,
+	primary key(task_id, group_id));
 
 CREATE table course_teach (
 	course_num number,
@@ -60,8 +62,17 @@ CREATE table performs (
 	completed varchar2(1),
 	grade number,
 	primary key(stid, task_id));
+    
+CREATE table group_performs (
+    stid number,
+    task_id number,
+    group_id number,
+    time_spent number,
+    completed varchar2(1),
+    grade number,
+    primary key(stid, task_id, group_id));
 
-/*Foreign Constraints*/
+
 ALTER TABLE group_project ADD CONSTRAINT group_task_id
 	FOREIGN KEY (task_id) REFERENCES task(task_id)
 	ON DELETE CASCADE;
@@ -90,6 +101,18 @@ ALTER TABLE performs ADD CONSTRAINT task_id
 	FOREIGN KEY (task_id) REFERENCES task(task_id)
 	ON DELETE CASCADE;
 
+ALTER TABLE group_performs ADD CONSTRAINT group_stid
+    FOREIGN KEY (stid) REFERENCES student (stid)
+    ON DELETE CASCADE;
+
+ALTER TABLE group_performs ADD CONSTRAINT perform_group_id
+    FOREIGN KEY (task_id, group_id) REFERENCES group_project (task_id, group_id)
+    ON DELETE CASCADE;
+
+
+ALTER TABLE task ADD CHECK (deadline >= DATE '2016-01-01');
+
+    
 insert into student values (19778125, 'stud1', 'Christine', 'Legge', 'CPSC');
 insert into student values (35176114, 'stud2', 'Jason', 'Masih', 'CPSC');
 insert into student values (94897071, 'stud3', 'Darren', 'Matis', 'CPSC');
@@ -185,10 +208,14 @@ insert into task values(36, '2016-03-30', 'Essay', 300, 'FREN');
 insert into task values(37, '2016-02-15', 'Book review', 300, 'FREN');
 insert into task values(38, '2016-01-15', 'Assignment 1', 101, 'ASTR');
 
-insert into group_project values(27, 4);
-insert into group_project values(6, 4);
-insert into group_project values(35, 3);
-insert into group_project values(30, 2);
+insert into group_project values(27, 1, 2);
+insert into group_project values(27, 2, 4);
+insert into group_project values(6, 1, 4);
+insert into group_project values(6, 2, 4);
+insert into group_project values(6, 3, 4);
+insert into group_project values(35, 1, 3);
+insert into group_project values(30, 1, 2);
+insert into group_project values(30, 2, 2);    
 
 insert into assignment values(1, 'Box 1');
 insert into assignment values(2, 'Box 1');
@@ -250,10 +277,6 @@ insert into performs values(56897412, 2, 1, 'N', null);
 insert into performs values(56897412, 3, 1, 'Y', 62);
 insert into performs values(56897412, 4, 5, 'Y', 70);
 insert into performs values(56897412, 5, 6, 'Y', 100);
-insert into performs values(56893214, 6, 10, 'N', null);
-insert into performs values(78956321, 6, 5, 'N', null);
-insert into performs values(23489652, 6, 8, 'N', null);
-insert into performs values(12596478, 6, 9, 'N', null);
 insert into performs values(56893214, 7, 6, 'Y', 61);
 insert into performs values(78956321, 7, 6, 'Y', 71);
 insert into performs values(23489652, 7, 8, 'Y', 82);
@@ -339,3 +362,25 @@ insert into performs values(35176114, 22, 6, 'Y', 85)/*completed all stat 306 ta
 insert into performs values(35176114, 23, 2, 'Y', 95);
 insert into performs values(35176114, 24, 3, 'Y', 99);
 insert into performs values(35176114, 25, 4, 'Y', 91);
+
+insert into group_performs values(23895647, 27, 1, 2, 'Y',  72) /*group 1 of STAT 443 group project*/;
+insert into group_performs values(15689752, 27, 1, 3, 'Y',  72); 
+insert into group_performs values(22254788, 27, 1, 4, 'Y',  72);
+insert into group_performs values(45678963, 27, 1, 5, 'Y',  72);
+insert into group_performs values(12881124, 27, 2, 5, 'N',  null) /*group 2 of STAT 443 group project*/;
+insert into group_performs values(02369874, 27, 2, 10, 'N',  null);
+insert into group_performs values(19778125, 27, 2, 7, 'N',  null);
+insert into group_performs values(45678963, 27, 2, 5, 'N',  null);
+insert into group_performs values(19778125, 6, 1, 11, 'Y',  97);
+insert into group_performs values(35176114, 6, 1, 11, 'Y',  97);
+insert into group_performs values(94897071, 6, 1, 11, 'Y',  97);
+insert into group_performs values(12881124, 6, 1, 9, 'Y',  96);
+insert into group_performs values(56893214, 6, 2, 10, 'N', null);
+insert into group_performs values(78956321, 6, 2, 5, 'N', null);
+insert into group_performs values(23489652, 6, 2, 8, 'N', null);
+insert into group_performs values(12596478, 6, 2, 9, 'N', null);
+insert into group_performs values(56897412, 6, 3, 7, 'N', null);
+insert into group_performs values(56893214, 6, 3, 7, 'N', null);
+insert into group_performs values(78956321, 6, 3, 7, 'N', null);
+
+ 
