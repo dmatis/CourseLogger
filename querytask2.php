@@ -21,7 +21,7 @@ if(!isset($_SESSION['myusername'])){
 	<!-- Sortable Table Script -->
 	<script type="text/javascript" src="jquery.tablesorter.min.js"></script>	
 
-	<title>Professor Report</title>
+	<title>Assignment Records</title>
 
 </head>
 <body>
@@ -54,17 +54,18 @@ if(!isset($_SESSION['myusername'])){
 
 
     <div id="page-content-wrapper">
-	<div class="container-fluid">
-	<div class="row">
-		<div class="col-lg-12">
-		<h1>Course Report</h1>
-		<!-- <p class="lead">Reset the Assignment Table</p>
-		<form method="POST" action="querytask.php">   
-		<p><input class="btn btn-lg btn-success" type="submit" value="Reset" name="reset"></p>
-		</form> -->
-    	</div>
-	</div>
-	</div>
+
+<h3> Selection query: </h3>
+<div class="container">
+	<form action="querytask2.php" method="POST" enctype="multipart/form-data">
+		<input type="checkbox" name="queryAttr" value="id" id="cb_id"> ID<br>
+		<input type="checkbox" name="queryAttr" value="descrip" id="cb_descrip"> Description<br>
+		<input type="checkbox" name="queryAttr" value="course_dept" id="cb_course_dept"> Course dept.<br>
+		<input type="checkbox" name="queryAttr" value="course_num" id="cb_course_num"> Course #<br>
+		<input type="checkbox" name="queryAttr" value="deadline" id="cb_deadline"> Deadline<br>
+		<input type="submit" name="checkboxsubmit" value="Search" id="cb_submit"><br>
+	</form>
+</div>
 
 <?php
 
@@ -136,126 +137,27 @@ function executeBoundSQL($cmdstr, $list) {
 	}
 }
 
-function printCourses($result) { //prints results from a select statement
-?>
-<table id="reportTable" class="table" style="empty-cells:show">
-    <thead>
-        <tr>
-            <th width="10%">Course</th>
-            <th width="10%" style="text-align:right">Average</th>
-            <th width="10%" style="text-align:right">Completion rate</th>
-            <th width="5%"></th>
-            <th width="5%"></th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-	while ($row = OCI_Fetch_Array($result, OCI_BOTH)) : ?>
-	<tr style="background-color:#ddd">
-        <td style="font-weight:600"><?php echo $row["COURSE_DEPT"];?> <?php echo $row["COURSE_NUM"]; ?>:</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-	</tr>
-    <?php 
-    $course_dept = $row["COURSE_DEPT"];
-    $course_num = $row["COURSE_NUM"];
-    $tasks = executePlainSQL("select task_id, descrip from task where course_dept='$course_dept' and course_num='$course_num'");
-    printTasks($tasks);
-    ?>
-    <?php endwhile; ?>
-    </tbody>
-</table>
-<?php
-}
+var_dump($_POST);
 
-function printTasks($result) { //prints results from a select statement
-?><?php
-	while ($row = OCI_Fetch_Array($result, OCI_BOTH)) : ?>
-	<tr>
-        <td style="padding-left:20px"><?php echo $row["DESCRIP"]; ?></td>
-        <?php
-        $task_id = $row['TASK_ID'];
-	    $grade_avg = executePlainSQL("select round(avg(grade),2) as avg_grade from performs where task_id=".$task_id);
-	    $complete_count = executePlainSQL("select count(task_id) as complete_count from performs where completed='Y' and task_id=".$task_id);
-	    $total_count = executePlainSQL("select count(task_id) as total_count from performs where task_id=".$task_id);
-	    printAverage($grade_avg);
-	    printCRate($complete_count, $total_count);
-	    ?>
-        <td align="right">
-        	<form method="POST" action="profreport.php">   
-			<p><input class="btn btn-xs btn-default" type="submit" value="Update" name="updatetask"></p>
-			</form>
-		</td>
-		<td>
-			<form method="POST" action='profreport.php'>
-				<input type="hidden" name='task_id' value="<?php echo $task_id?>">
-				<input class="btn btn-xs btn-danger" type="submit" value="Delete" name="deletetask">
-			</form>
-        </td>
-	</tr>
-    <?php endwhile; ?>
-<?php
-}
-
-function printAverage($avg_result) { //prints results from a select statement
-?><?php
-	$avg = OCI_Fetch_Array($avg_result, OCI_BOTH);
-	if (is_numeric($avg['AVG_GRADE'])) {
-		?>
-		<td align="right"><?php echo $avg['AVG_GRADE']; ?></td>
-		<?php	
+if (array_key_exists('checkboxsubmit', $_POST)) {
+	if(!empty($_POST['queryAttr'])){
+		foreach($_POST['queryAttr'] as $selected){
+			echo $selected."</br>";
+		}
 	}
-	else {
-		?>
-		<td align="right">-</td>
-		<?php
-	}
-	?>
-<?php
-}
-
-function printCRate($complete_count_result, $total_count_result) { //prints results from a select statement
-?><?php
-	$c_count = OCI_Fetch_Array($complete_count_result, OCI_BOTH);
-	$t_count = OCI_Fetch_Array($total_count_result, OCI_BOTH);
-	if ($t_count['TOTAL_COUNT'] > 0) {
-		?>
-		<td align="right"><?php echo $c_count['COMPLETE_COUNT']; ?>/<?php echo $t_count['TOTAL_COUNT']; ?></td>
-		<?php
-	}
-	else {
-		?>
-		<td align="right">Not assigned</td>
-		<?php
-	}
-	?>
-<?php
 }
 
 // Connect Oracle...
 if ($db_conn) {
 
-	if (array_key_exists('deletetask', $_POST)) {
-		$tuple = array (
-				":bind1" => $_POST['task_id'],
-			);
-			$alltuples = array (
-				$tuple
-			);
-		// executeBoundSQL("delete from task where id=:bind1", $alltuples);
-		executeBoundSQL("delete from task where task_id=:bind1", $alltuples);
-		OCICommit($db_conn);
-	}
-
 	if ($_POST && $success) {
 		//POST-REDIRECT-GET -- See http://en.wikipedia.org/wiki/Post/Redirect/Get
-		header("location: profreport.php");
+		header("location: querytask2.php");
 	} else {
 		// Select data...
-		$courses = executePlainSQL("select course_dept, course_num from course_teach order by course_dept, course_num");
-		printCourses($courses);
+		$result = executePlainSQL("select * from task");
+		// printResult($result);
+		// checkCheckboxes();
 	}
 
 	//Commit to save changes...
@@ -304,19 +206,19 @@ if ($db_conn) {
 </div>
 </div>
 
- //    <script>
+    <script>
 	// $(document).ready(function(){
 	// $(function(){
-	// 	$("#reportTable").tablesorter();
+	// 	$("#resultTable").tablesorter();
 	// 	});
 	// });
- //    </script>
+    </script>
 
     <script>
-    $("#menu-toggle").click(function(e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("toggled");
-    });
+    // $("#menu-toggle").click(function(e) {
+    //     e.preventDefault();
+    //     $("#wrapper").toggleClass("toggled");
+    // });
     </script>
 
 </body>
