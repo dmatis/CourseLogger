@@ -156,7 +156,13 @@ function printCourses($result) { //prints results from a select statement
         <td></td>
         <td></td>
         <td></td>
-        <td></td>
+        <td>
+        	<form method="POST" action='profreport.php'>
+				<input type="hidden" name='course_dept' value="<?php echo $row["COURSE_DEPT"];?>">
+				<input type="hidden" name='course_num' value="<?php echo $row["COURSE_NUM"]; ?>">
+				<input class="btn btn-xs btn-success" type="submit" value="Completed" name="allcomplete">
+			</form>
+		</td>
 	</tr>
     <?php 
     $course_dept = $row["COURSE_DEPT"];
@@ -234,6 +240,18 @@ function printCRate($complete_count_result, $total_count_result) { //prints resu
 <?php
 }
 
+function printCompleteAll($all_complete) { //prints results from a select statement
+?>
+	<div class="container">
+		<?php 
+		// Students that... should appear here
+		while ($row = OCI_Fetch_Array($all_complete, OCI_BOTH)) : ?>
+		<p><?php echo $row["FNAME"];?> <?php echo $row["LNAME"];?></p>
+		<?php endwhile; ?>
+	</div>
+<?php
+}
+
 // Connect Oracle...
 if ($db_conn) {
 
@@ -249,13 +267,53 @@ if ($db_conn) {
 		OCICommit($db_conn);
 	}
 
+	if (array_key_exists('allcomplete', $_POST)) {
+		$tuple = array (
+				":bind1" => $_POST['course_dept'],
+				":bind2" => $_POST['course_num'],
+			);
+			$alltuples = array (
+				$tuple
+			);
+		executePlainSQL("drop table performs_each");
+		executePlainSQL("drop table performs_each_group");
+		executePlainSQL("drop table performs_total");
+
+		executePlainSQL("create table performs_each as select stid 
+			from performs 
+			where task_id in (select task_id from task where course_num='304' and course_dept='CPSC') and completed='Y' 
+			group by stid having count(*) = (select count(*) 
+		                                 from task 
+		                                 where course_num='304' and course_dept='CPSC')");
+
+		executePlainSQL("create table performs_each_group as select stid
+			from group_performs 
+			where task_id in (select task_id from task where course_num='304' and course_dept='CPSC') and completed='Y' 
+			group by stid having count(*) = (select count(*) 
+		                                 from task 
+		                                 where course_num='304' and course_dept='CPSC')");
+		                    
+
+		executePlainSQL("create table performs_total as select performs_each.stid 
+			from performs_each
+			left join performs_each_group
+			on performs_each.stid=performs_each_group.stid");
+
+		$all_complete = executePlainSQL("select fname, lname
+			from student S, performs_total PT
+			where S.stid = PT.stid");
+		OCICommit($db_conn);
+	}
+
 	if ($_POST && $success) {
 		//POST-REDIRECT-GET -- See http://en.wikipedia.org/wiki/Post/Redirect/Get
 		header("location: profreport.php");
 	} else {
 		// Select data...
 		$courses = executePlainSQL("select course_dept, course_num from course_teach order by course_dept, course_num");
+		printCompleteAll($resultComplete);
 		printCourses($courses);
+		completedAllForm();
 	}
 
 	//Commit to save changes...
