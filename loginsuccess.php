@@ -7,7 +7,7 @@ session_start();
 <body>
 Login Successful!
 <?php
-if (!isset($_SESSION['myprofname'])){
+if (!isset($_SESSION['myprofid'])){
 	header('Refresh: 2; URL=index.php');
 } else {
 	header('Refresh: 2; URL=profindex.php');

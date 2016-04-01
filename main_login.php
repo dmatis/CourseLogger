@@ -8,9 +8,9 @@
 	</tr>
 
 	<tr>
-		<td width="78">Username</td>
+		<td width="78">ID</td>
 		<td width="6">:</td>
-		<td width="294"><input name="myusername" type="text" id="myusername"></td>
+		<td width="294"><input name="myid" type="text" id="myid"></td>
 	</tr>
 	<tr>
 		<td>Password</td>

@@ -2,9 +2,9 @@
 ini_set('session.save_path',realpath(dirname($_SERVER['DOCUMENT_ROOT']) . '/../php_sessions'));
 session_start();
 
-if(!isset($_SESSION['myusername'])){
-	header("location:main_login.php");
-}
+//if(!isset($_SESSION['myusername'])){
+//	header("location:main_login.php");
+//}
 ?>
 
 <!DOCTYPE HTML>

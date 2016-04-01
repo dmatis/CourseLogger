@@ -6,7 +6,6 @@ session_start();
 include 'executeQueries.php';
 
 $isProf = $_POST['prof']; //prof checkbox
-$tbl_name="members"; // Table name 
 
 // Connect to server and select database.
 $success = True;
@@ -18,17 +17,17 @@ if ($db_conn) {
   echo "Oracle Error " . $err['message'];
 }
  
-$myusername = $_POST['myusername'];
+$myid = $_POST['myid'];
 $mypassword = $_POST['mypassword'];
 
 if(empty($isProf)){
 	echo"<p>Searching Student database</p>";
-	$stid = oci_parse($db_conn, "create table memb as select * from members where username='".$myusername."' and password='".$mypassword."'");
+	$stid = oci_parse($db_conn, "create table memb as select * from student where stid='".$myid."' and password='".$mypassword."'");
 	oci_execute($stid);
 
 } else {
-	echo"<p>Searching Prof database</p>";
-	$stid = oci_parse($db_conn, "create table memb as select * from profs where username='".$myusername."' and password='".$mypassword."'");
+	echo"<p>Searching Professor database</p>";
+	$stid = oci_parse($db_conn, "create table memb as select * from professor where profid='".$myid."' and password='".$mypassword."'");
 	oci_execute($stid);
 }
 
@@ -37,7 +36,7 @@ if(empty($isProf)){
 //print_r($_POST);
 
 $tuple = array (
-	":bind1" => $myusername,
+	":bind1" => $myid,
 	":bind2" => $mypassword
 );
 $alltuples = array ($tuple);  
@@ -52,9 +51,9 @@ oci_close($db_conn);
 
 if($count==1){
 	if(!empty($isProf)){
-		$_SESSION['myprofname'] = $myusername;
+		$_SESSION['myprofid'] = $myid;
 	} else {
-		$_SESSION['myusername'] = $myusername;
+		$_SESSION['myid'] = $myid;
 	}
 	$_SESSION['mypassword'] = $mypassword;
 	header('Refresh: 1; URL=loginsuccess.php');
