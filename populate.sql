@@ -63,16 +63,16 @@ CREATE table performs (
 	grade number,
 	primary key(stid, task_id));
     
-CREATE table group_perfoms (
+CREATE table group_performs (
     stid number,
     task_id number,
     group_id number,
     time_spent number,
-    completd varchar2(1),
+    completed varchar2(1),
     grade number,
     primary key(stid, task_id, group_id));
 
-/*Foreign Constraints*/
+
 ALTER TABLE group_project ADD CONSTRAINT group_task_id
 	FOREIGN KEY (task_id) REFERENCES task(task_id)
 	ON DELETE CASCADE;
@@ -101,31 +101,17 @@ ALTER TABLE performs ADD CONSTRAINT task_id
 	FOREIGN KEY (task_id) REFERENCES task(task_id)
 	ON DELETE CASCADE;
 
-ALTER TABLE group_performs ADD CONSTRAINT stid
+ALTER TABLE group_performs ADD CONSTRAINT group_stid
     FOREIGN KEY (stid) REFERENCES student (stid)
     ON DELETE CASCADE;
 
-ALTER TABLE group_perfoms ADD CONSTRAINT group_id
-    FOREIGN KEY (task_id, group_id) REFERENCES group_propject (task_id, group_id)
+ALTER TABLE group_performs ADD CONSTRAINT perform_group_id
+    FOREIGN KEY (task_id, group_id) REFERENCES group_project (task_id, group_id)
     ON DELETE CASCADE;
 
-/*Check constraionts*/
-ALTER TABLE task ADD CHECK deadline <= DATE '2016-01-01';
 
-CREATE FUNCTION maxGroupSize(@taskid number, @gid number)
-        RETURNS number 
-        AS
-        BEGIN
-            RETURN (SELECT G.max_size FROM group_project AS G WHERE  G.task_id = @taskid AND G.group_id = @gid)
-        END
-CREATE FUNCTION currentGroupSize(@taskid number, @gid number)
-        RETURNS number 
-        AS
-        BEGIN
-            RETURN (SELECT COUNT(G.taskID) FROM group_performs AS G WHERE  G.task_id = @taskid AND G.group_id = @gid)
-        END
+ALTER TABLE task ADD CHECK (deadline >= DATE '2016-01-01');
 
-ALTER TABLE group_performs ADD CHECK currentGroupSize(task_id, group_id) <= maxGroupSize(task_id,group_id);
     
 insert into student values (19778125, 'stud1', 'Christine', 'Legge', 'CPSC');
 insert into student values (35176114, 'stud2', 'Jason', 'Masih', 'CPSC');
@@ -377,11 +363,11 @@ insert into performs values(35176114, 23, 2, 'Y', 95);
 insert into performs values(35176114, 24, 3, 'Y', 99);
 insert into performs values(35176114, 25, 4, 'Y', 91);
 
-insert into group_performs values(23895647, 27, 1, 2, 'Y',  72); /*group 1 of STAT 443 group project*/
+insert into group_performs values(23895647, 27, 1, 2, 'Y',  72) /*group 1 of STAT 443 group project*/;
 insert into group_performs values(15689752, 27, 1, 3, 'Y',  72); 
 insert into group_performs values(22254788, 27, 1, 4, 'Y',  72);
 insert into group_performs values(45678963, 27, 1, 5, 'Y',  72);
-insert into group_performs values(12881124, 27, 2, 5, 'N',  null); /*group 2 of STAT 443 group project*/
+insert into group_performs values(12881124, 27, 2, 5, 'N',  null) /*group 2 of STAT 443 group project*/;
 insert into group_performs values(02369874, 27, 2, 10, 'N',  null);
 insert into group_performs values(19778125, 27, 2, 7, 'N',  null);
 insert into group_performs values(45678963, 27, 2, 5, 'N',  null);
@@ -397,12 +383,4 @@ insert into group_performs values(56897412, 6, 3, 7, 'N', null);
 insert into group_performs values(56893214, 6, 3, 7, 'N', null);
 insert into group_performs values(78956321, 6, 3, 7, 'N', null);
 
-    
-insert into group_project values(27, 1, 2);
-insert into group_project values(27, 2, 4);
-insert into group_project values(6, 1, 4);
-insert into group_project values(6, 2, 4);
-insert into group_project values(6, 3, 4);
-insert into group_project values(35, 1, 3);
-insert into group_project values(30, 1, 2);
-insert into group_project values(30, 2, 2);    
+ 
