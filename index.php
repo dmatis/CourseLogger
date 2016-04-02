@@ -2,7 +2,7 @@
 ini_set('session.save_path',realpath(dirname($_SERVER['DOCUMENT_ROOT']) . '/../php_sessions'));
 session_start();
 
-//if(!isset($_SESSION['myusername'])){
+//if(!isset($_SESSION['myid'])){
 //	header("location:main_login.php");
 //}
 ?>
@@ -37,10 +37,7 @@ session_start();
                     </a>
                 </li>
                 <li>
-                    <a href="index.php">Reports</a>
-                </li>
-                <li>
-                    <a href="#">Add Time</a>
+                    <a href="studreport.php">Reports</a>
                 </li>
                 <li>
                     <a href="groups.php">Groups</a>

@@ -33,10 +33,7 @@ session_start();
                     </a>
                 </li>
                 <li>
-                    <a href="#">Reports</a>
-                </li>
-                <li>
-                    <a href="#">Add Time</a>
+                    <a href="studreport.php">Reports</a>
                 </li>
                 <li>
                     <a href="groups.php">Groups</a>
@@ -159,7 +156,7 @@ if ($db_conn) {
 		$tuple = array (
 			":bind1" => $_POST['taskid']
 		);
-		$result = executePlainSQL("select m.id, m.username, g.descrip, g.deadline, p.time_spent, p.complete, p.grade from performs p, group_project g, members m where g.task_id=".$_POST['taskid']." AND p.task_id=g.task_id AND p.id=g.id AND m.id=g.id", $tuple);
+		$result = executePlainSQL("select s.fname, s.lname, t.descrip, t.deadline, p.time_spent, p.complete, p.grade from performs p, task t, student s where g.task_id=".$_POST['taskid']." AND p.task_id=g.task_id AND p.stid=s.stid AND m.id=g", $tuple);
 		printResult($result);
 	}
 
