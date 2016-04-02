@@ -12,7 +12,7 @@
 	<!-- Sortable Table Script -->
 	<script type="text/javascript" src="jquery.tablesorter.min.js"></script>	
 
-	<title>Assignment Records</title>
+	<title>All Tasks Complete </title>
 
 </head>
 <body>
@@ -45,80 +45,42 @@
 
 
     <div id="page-content-wrapper">
-
-<h3> Selection query: </h3>
-<div class="container">
-
-</div>
+	<div class="container-fluid">
+	<div class="row">
+		<div class="col-lg-12">
+		<h1>Students who have finished all tasks in</h1>
+    	</div>
+	</div>
+	</div>
 
 <?php
-
-function printResult($result, $attrs_arr) { //prints results from a select statement
-?>
-<table id="resultTable" class="table">
-    <thead>
-        <tr>
-        	<?php foreach ($attrs_arr as $attr) {
-        		?>
-        		<th width="10%"><?php echo strtoupper($attr)?></th>
-        		<?php
-        	}
-        	?>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-	while ($row = OCI_Fetch_Array($result, OCI_BOTH)) : ?>
-	<tr>
-		<?php foreach ($attrs_arr as $attr) {
-        		?>
-        		<td><?php echo $row[strtoupper($attr)]?></td>
-        		<?php
-        	}
-        	?>
-	</tr>
-        <?php endwhile; ?>
-    </tbody>
-</table>
-<?php
-}
-
-$db_conn = OCILogon("ora_f3w8", "a94897071", "ug");
-$attrs_arr = array();
-foreach ($_POST['queryAttr'] as $attr) {
-	$attrs .= ", ".$attr;
-	array_push($attrs_arr, $attr);
-}
-$attrs = substr($attrs,2);
-
-$query = "select ".$attrs." from task";
-
-$statement = OCIParse($db_conn, $query);
-OCIExecute($statement, OCI_DEFAULT);
-printResult($statement, $attrs_arr);
 
 print "CONTENT_TYPE: " . $_SERVER['CONTENT_TYPE'] . "<BR />";
 $data = file_get_contents('php://input'); print "DATA: <pre>";
 var_dump($data);
 var_dump($_POST);
 print "</pre>";
+
+//this tells the system that it's no longer just parsing 
+//html; it's now parsing PHP
+
 ?>
 </div>
 </div>
 
-    <script>
+ //    <script>
 	// $(document).ready(function(){
 	// $(function(){
-	// 	$("#resultTable").tablesorter();
+	// 	$("#reportTable").tablesorter();
 	// 	});
 	// });
-    </script>
+ //    </script>
 
     <script>
-    // $("#menu-toggle").click(function(e) {
-    //     e.preventDefault();
-    //     $("#wrapper").toggleClass("toggled");
-    // });
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
     </script>
 
 </body>

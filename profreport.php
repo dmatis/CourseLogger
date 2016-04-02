@@ -1,12 +1,3 @@
-<?php
-ini_set('session.save_path',realpath(dirname($_SERVER['DOCUMENT_ROOT']) . '/../php_sessions'));
-session_start();
-
-if(!isset($_SESSION['myusername'])){
-	header("location:main_login.php");
-}
-?>
-
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -58,10 +49,6 @@ if(!isset($_SESSION['myusername'])){
 	<div class="row">
 		<div class="col-lg-12">
 		<h1>Course Report</h1>
-		<!-- <p class="lead">Reset the Assignment Table</p>
-		<form method="POST" action="querytask.php">   
-		<p><input class="btn btn-lg btn-success" type="submit" value="Reset" name="reset"></p>
-		</form> -->
     	</div>
 	</div>
 	</div>
@@ -95,6 +82,24 @@ function executePlainSQL($cmdstr) { //takes a plain (no bound variables) SQL com
 		$success = False;
 	} else {
 
+	}
+	return $statement;
+}
+
+function executePlainSQLForDrop($cmdstr) { //takes a plain (no bound variables) SQL command and executes it
+	//echo "<br>running ".$cmdstr."<br>";
+	global $db_conn, $success;
+	$statement = OCIParse($db_conn, $cmdstr); //There is a set of comments at the end of the file that describe some of the OCI specific functions and how they work
+
+	if (!$statement) {
+		$success = False;
+	}
+
+	$r = OCIExecute($statement, OCI_DEFAULT);
+	if (!$r) {
+		$success = False;
+	} else {
+		$statement = False;
 	}
 	return $statement;
 }
@@ -150,23 +155,24 @@ function printCourses($result) { //prints results from a select statement
     </thead>
     <tbody>
         <?php
-	while ($row = OCI_Fetch_Array($result, OCI_BOTH)) : ?>
+	while ($row = OCI_Fetch_Array($result, OCI_BOTH)) :
+    $course_dept = $row["COURSE_DEPT"];
+    $course_num = $row["COURSE_NUM"];
+    ?>
 	<tr style="background-color:#ddd">
-        <td style="font-weight:600"><?php echo $row["COURSE_DEPT"];?> <?php echo $row["COURSE_NUM"]; ?>:</td>
+        <td style="font-weight:600"><?php echo $course_dept;?> <?php echo $course_num; ?>:</td>
         <td></td>
         <td></td>
         <td></td>
         <td>
-        	<form method="POST" action='profreport.php'>
-				<input type="hidden" name='course_dept' value="<?php echo $row["COURSE_DEPT"];?>">
-				<input type="hidden" name='course_num' value="<?php echo $row["COURSE_NUM"]; ?>">
+        	<form method="POST" action="allcomplete.php">
+				<input type="hidden" name="ac_course_dept" value="<?php echo $course_dept;?>">
+				<input type="hidden" name="ac_course_num" value="<?php echo $course_num;?>">
 				<input class="btn btn-xs btn-success" type="submit" value="Completed" name="allcomplete">
 			</form>
 		</td>
 	</tr>
     <?php 
-    $course_dept = $row["COURSE_DEPT"];
-    $course_num = $row["COURSE_NUM"];
     $tasks = executePlainSQL("select task_id, descrip from task where course_dept='$course_dept' and course_num='$course_num'");
     printTasks($tasks);
     ?>
@@ -240,17 +246,23 @@ function printCRate($complete_count_result, $total_count_result) { //prints resu
 <?php
 }
 
-function printCompleteAll($all_complete) { //prints results from a select statement
+function printAllComplete($all_complete, $course_dept, $course_num) { //prints results from a select statement
 ?>
 	<div class="container">
+		<?php "Students that have finished all tasks in '$course_dept' '$course_num': "?>
 		<?php 
-		// Students that... should appear here
 		while ($row = OCI_Fetch_Array($all_complete, OCI_BOTH)) : ?>
 		<p><?php echo $row["FNAME"];?> <?php echo $row["LNAME"];?></p>
 		<?php endwhile; ?>
 	</div>
 <?php
 }
+
+print "CONTENT_TYPE: " . $_SERVER['CONTENT_TYPE'] . "<BR />";
+$data = file_get_contents('php://input'); print "DATA: <pre>";
+var_dump($data);
+var_dump($_POST);
+print "</pre>";
 
 // Connect Oracle...
 if ($db_conn) {
@@ -262,38 +274,33 @@ if ($db_conn) {
 			$alltuples = array (
 				$tuple
 			);
-		// executeBoundSQL("delete from task where id=:bind1", $alltuples);
 		executeBoundSQL("delete from task where task_id=:bind1", $alltuples);
 		OCICommit($db_conn);
 	}
 
-	if (array_key_exists('allcomplete', $_POST)) {
-		$tuple = array (
-				":bind1" => $_POST['course_dept'],
-				":bind2" => $_POST['course_num'],
-			);
-			$alltuples = array (
-				$tuple
-			);
-		executePlainSQL("drop table performs_each");
-		executePlainSQL("drop table performs_each_group");
-		executePlainSQL("drop table performs_total");
+	else if (array_key_exists('allcomplete', $_POST)) {
+
+		$ac_course_dept = $_POST['ac_course_dept'];
+		$ac_course_num = $_POST['ac_course_num'];
+
+		executePlainSQLForDrop("drop table performs_each");
+		executePlainSQLForDrop("drop table performs_each_group");
+		executePlainSQLForDrop("drop table performs_total");
 
 		executePlainSQL("create table performs_each as select stid 
 			from performs 
-			where task_id in (select task_id from task where course_num='304' and course_dept='CPSC') and completed='Y' 
+			where task_id in (select task_id from task where course_num='$ac_course_num' and course_dept='$ac_course_dept') and completed='Y' 
 			group by stid having count(*) = (select count(*) 
 		                                 from task 
-		                                 where course_num='304' and course_dept='CPSC')");
+		                                 where course_num='$ac_course_num' and course_dept='$ac_course_dept')");
 
 		executePlainSQL("create table performs_each_group as select stid
 			from group_performs 
-			where task_id in (select task_id from task where course_num='304' and course_dept='CPSC') and completed='Y' 
+			where task_id in (select task_id from task where course_num='$ac_course_num' and course_dept='$ac_course_dept') and completed='Y' 
 			group by stid having count(*) = (select count(*) 
 		                                 from task 
-		                                 where course_num='304' and course_dept='CPSC')");
+		                                 where course_num='$ac_course_num' and course_dept='$ac_course_dept')");
 		                    
-
 		executePlainSQL("create table performs_total as select performs_each.stid 
 			from performs_each
 			left join performs_each_group
@@ -302,6 +309,8 @@ if ($db_conn) {
 		$all_complete = executePlainSQL("select fname, lname
 			from student S, performs_total PT
 			where S.stid = PT.stid");
+
+		printAllComplete($all_complete, $ac_course_dept, $ac_course_num);
 		OCICommit($db_conn);
 	}
 
@@ -311,9 +320,7 @@ if ($db_conn) {
 	} else {
 		// Select data...
 		$courses = executePlainSQL("select course_dept, course_num from course_teach order by course_dept, course_num");
-		printCompleteAll($resultComplete);
 		printCourses($courses);
-		completedAllForm();
 	}
 
 	//Commit to save changes...

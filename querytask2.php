@@ -1,12 +1,3 @@
-<?php
-ini_set('session.save_path',realpath(dirname($_SERVER['DOCUMENT_ROOT']) . '/../php_sessions'));
-session_start();
-
-if(!isset($_SESSION['myusername'])){
-	header("location:main_login.php");
-}
-?>
-
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -57,12 +48,12 @@ if(!isset($_SESSION['myusername'])){
 
 <h3> Selection query: </h3>
 <div class="container">
-	<form action="querytasktest.php" method="POST" enctype="multipart/form-data">
-		<input type="checkbox" name="queryAttr" value="id" id="cb_id"> ID<br>
-		<input type="checkbox" name="queryAttr" value="descrip" id="cb_descrip"> Description<br>
-		<input type="checkbox" name="queryAttr" value="course_dept" id="cb_course_dept"> Course dept.<br>
-		<input type="checkbox" name="queryAttr" value="course_num" id="cb_course_num"> Course #<br>
-		<input type="checkbox" name="queryAttr" value="deadline" id="cb_deadline"> Deadline<br>
+	<form action="querytasktest.php" method="POST">
+		<input type="checkbox" name="queryAttr[]" value="task_id" id="cb_id"> ID<br>
+		<input type="checkbox" name="queryAttr[]" value="descrip" id="cb_descrip"> Description<br>
+		<input type="checkbox" name="queryAttr[]" value="course_dept" id="cb_course_dept"> Course dept.<br>
+		<input type="checkbox" name="queryAttr[]" value="course_num" id="cb_course_num"> Course #<br>
+		<input type="checkbox" name="queryAttr[]" value="deadline" id="cb_deadline"> Deadline<br>
 		<input type="submit" name="checkboxsubmit" value="Search" id="cb_submit"><br>
 	</form>
 </div>
@@ -144,8 +135,6 @@ if (array_key_exists('checkboxsubmit', $_POST)) {
 		}
 	}
 }
-
-var_dump($_POST);
 
 // Connect Oracle...
 if ($db_conn) {

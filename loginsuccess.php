@@ -10,7 +10,7 @@ Login Successful!
 if (!isset($_SESSION['myprofid'])){
 	header('Refresh: 2; URL=index.php');
 } else {
-	header('Refresh: 2; URL=profindex.php');
+	header('Refresh: 2; URL=profreport.php');
 }
 ?>
 </body>
