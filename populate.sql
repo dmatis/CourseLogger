@@ -111,6 +111,7 @@ ALTER TABLE group_performs ADD CONSTRAINT perform_group_id
 
 ALTER TABLE task ADD CHECK (deadline >= DATE '2016-01-01');
 
+ALTER TABLE performs ADD CHECK (time_spent >= 0);
     
 insert into student values (19778125, 'stud1', 'Christine', 'Legge', 'CPSC');
 insert into student values (35176114, 'stud2', 'Jason', 'Masih', 'CPSC');
