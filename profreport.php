@@ -2,9 +2,9 @@
 ini_set('session.save_path',realpath(dirname($_SERVER['DOCUMENT_ROOT']) . '/../php_sessions'));
 session_start();
 
-if(!isset($_SESSION['myusername'])){
+/*if(!isset($_SESSION['myusername'])){
 	header("location:main_login.php");
-}
+}*/
 ?>
 
 <!DOCTYPE HTML>
@@ -65,6 +65,29 @@ if(!isset($_SESSION['myusername'])){
     	</div>
 	</div>
 	</div>
+	<form id="hiddenform"><input type="hidden" id="update"/></form>
+
+	<script>
+    function popupbox() {
+    	//needs type checking
+	    var new_deadline = prompt("Please enter a new due date", "YY-MM-DD");
+	    
+		    if (new_deadline != null) {
+		        /*$.ajax(
+				{
+				    type: "POST",
+				    url: "/~f6p8/CourseLogger/profreport.php",
+				    data: new_deadline,
+				    success: function(data, textStatus, jqXHR)
+				    {
+				        console.log("hello");
+				    }
+				});*/
+		    }
+		}
+
+    </script>
+
 
 <?php
 
@@ -144,6 +167,7 @@ function printCourses($result) { //prints results from a select statement
             <th width="10%">Course</th>
             <th width="10%" style="text-align:right">Average</th>
             <th width="10%" style="text-align:right">Completion rate</th>
+            <th width="10%" style="text-align:right">Deadline</th>
             <th width="5%"></th>
             <th width="5%"></th>
         </tr>
@@ -157,11 +181,12 @@ function printCourses($result) { //prints results from a select statement
         <td></td>
         <td></td>
         <td></td>
+        <td></td>
 	</tr>
     <?php 
     $course_dept = $row["COURSE_DEPT"];
     $course_num = $row["COURSE_NUM"];
-    $tasks = executePlainSQL("select task_id, descrip from task where course_dept='$course_dept' and course_num='$course_num'");
+    $tasks = executePlainSQL("select task_id, descrip, deadline from task where course_dept='$course_dept' and course_num='$course_num'");
     printTasks($tasks);
     ?>
     <?php endwhile; ?>
@@ -169,6 +194,8 @@ function printCourses($result) { //prints results from a select statement
 </table>
 <?php
 }
+
+
 
 function printTasks($result) { //prints results from a select statement
 ?><?php
@@ -180,12 +207,14 @@ function printTasks($result) { //prints results from a select statement
 	    $grade_avg = executePlainSQL("select round(avg(grade),2) as avg_grade from performs where task_id=".$task_id);
 	    $complete_count = executePlainSQL("select count(task_id) as complete_count from performs where completed='Y' and task_id=".$task_id);
 	    $total_count = executePlainSQL("select count(task_id) as total_count from performs where task_id=".$task_id);
+	    $deadline = executePlainSQL("select deadline as deadline from task where task_id=".$task_id);
 	    printAverage($grade_avg);
 	    printCRate($complete_count, $total_count);
+	    printDeadline($deadline);
 	    ?>
         <td align="right">
         	<form method="POST" action="profreport.php">   
-			<p><input class="btn btn-xs btn-default" type="submit" value="Update" name="updatetask"></p>
+			<p><input class="btn btn-xs btn-default" type="submit" value="Update" name="updatetask" onclick="popupbox()"></p>
 			</form>
 		</td>
 		<td>
@@ -196,6 +225,16 @@ function printTasks($result) { //prints results from a select statement
         </td>
 	</tr>
     <?php endwhile; ?>
+<?php
+}
+
+function printDeadline($deadline_result) {
+?><?php
+	$deadline = OCI_Fetch_Array($deadline_result, OCI_BOTH);
+	?>
+	<td align="right"><?php echo $deadline['DEADLINE']; ?></td>
+	<?php
+	?>
 <?php
 }
 
@@ -248,6 +287,19 @@ if ($db_conn) {
 		executeBoundSQL("delete from task where task_id=:bind1", $alltuples);
 		OCICommit($db_conn);
 	}
+
+	/*if (array_key_exists('updatetask', $_POST)) {
+		echo $_POST['data'];
+		$tuple = array (
+				":bind1" => $_POST['task_id'],
+			);
+			$alltuples = array (
+				$tuple
+			);
+		// executeBoundSQL("delete from task where id=:bind1", $alltuples);
+		executeBoundSQL("delete from task where task_id=:bind1", $alltuples);
+		OCICommit($db_conn);
+	}*/
 
 	if ($_POST && $success) {
 		//POST-REDIRECT-GET -- See http://en.wikipedia.org/wiki/Post/Redirect/Get
@@ -318,6 +370,7 @@ if ($db_conn) {
         $("#wrapper").toggleClass("toggled");
     });
     </script>
+
 
 </body>
 </html>
