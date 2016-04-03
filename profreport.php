@@ -129,10 +129,11 @@ function executeBoundSQL($cmdstr, $list) {
 		}
 		$r = OCIExecute($statement, OCI_DEFAULT);
 		if (!$r) {
-			echo "<br>Cannot execute the following command: " . $cmdstr . "<br>";
 			$e = OCI_Error($statement); // For OCIExecute errors pass the statementhandle
-			echo htmlentities($e['message']);
-			echo "<br>";
+			echo "<script>alert('The following error occured: ".$e['message']."');</script>";
+			//echo "<br>Cannot execute the following command: " . $cmdstr . "<br>";
+			//echo htmlentities($e['message']);
+			//echo "<br>";
 			$success = False;
 		}
 	}

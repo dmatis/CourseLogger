@@ -83,9 +83,12 @@ function executePlainSQL($cmdstr) {
 
 	$r = OCIExecute($statement, OCI_DEFAULT);
 	if (!$r) {
-		echo "<br>Cannot execute the following command: " . $cmdstr . "<br>";
+		
 		$e = oci_error($statement);
-		echo htmlentities($e['message']);
+		echo "<script>alert('The following error occured: " . $e['message'] . "');</script>";
+		//echo "<br>Cannot execute the following command: " . $cmdstr . "<br>";
+		//echo "<script>alert('failure');</script>";
+		//echo htmlentities($e['message']);
 		$success = False;
 	}
 	return $statement;
