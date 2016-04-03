@@ -28,12 +28,12 @@ session_start();
         <div id="sidebar-wrapper">
             <ul class="sidebar-nav">
                 <li class="sidebar-brand">
-                    <a href="index.php">
+                    <a href=<?php if (isset($_SESSION['myprofid'])) echo "profindex.php"; else echo "index.php";?>>
                         HOME
                     </a>
                 </li>
                 <li>
-                    <a href="studreport.php">Reports</a>
+                    <a href=<?php if (isset($_SESSION['myprofid'])) echo "profreport.php"; else echo "studreport.php";?>>Reports</a>
                 </li>
                 <li>
                     <a href="#">Groups</a>

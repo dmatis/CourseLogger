@@ -72,7 +72,7 @@ if(!isset($_SESSION['myusername'])){
 	<label>Assignment ID</label>
 	<input type="text" name="id"><br />
 	<label>Description</label>
-	<input type="text" name="description"><br />
+	<input type="text" name="descrip"><br />
 	<label>Course dept.</label>
 	<input type="text" name="course_dept"><br />
 	<label>Course #</label>
@@ -115,13 +115,23 @@ get the values-->
 
 <h3> Selection query: </h3>
 <div class="container">
-<form method="POST" action="querytask.php">
-	<label>Course dept.</label>
-	<input type="text" name="query_course_dept"><br />
-	<label>Course #</label>
-	<input type="text" name="query_course_num"><br />
-<input type="submit" value="query" name="querysubmit"></p>
-</form>
+	<form method="POST" action="querytask.php">
+		<input type="checkbox" name="queryAttr[]" value="id"> ID<br>
+		<input type="checkbox" name="queryAttr[]" value="descrip"> Description<br>
+		<input type="checkbox" name="queryAttr[]" value="course_dept"> Course dept.<br>
+		<input type="checkbox" name="queryAttr[]" value="course_num"> Course #<br>
+		<input type="checkbox" name="queryAttr[]" value="deadline"> Deadline<br>
+		<input type="submit" name="checkboxsubmit" value="Search">
+	</form>
+</div>
+<div>
+	<form method="POST" action="querytask.php">
+		<label>Course dept.</label>
+		<input type="text" name="query_course_dept"><br />
+		<label>Course #</label>
+		<input type="text" name="query_course_num"><br />
+		<input type="submit" value="query" name="querysubmit"></p>
+	</form>
 </div>
 
 <?php
@@ -155,6 +165,32 @@ function executePlainSQL($cmdstr) { //takes a plain (no bound variables) SQL com
 
 	}
 	return $statement;
+}
+
+function checkCheckboxes() {
+	?>
+	<?php
+	echo $_POST;
+	// if (isset($_POST['checkboxsubmit'])) {
+	// 	echo "TEST";
+	// }
+	// if ($_POST['id'] == 'task_id') {
+	// 	echo 'id';
+	// }
+	// if (isset($_POST['descrip'])) {
+	// 	echo 'description';
+	// }
+	// if (isset($_POST['course_dept'])) {
+	// 	echo 'course dept.';
+	// }
+	// if (isset($_POST['course_num'])) {
+	// 	echo 'course #';
+	// }
+	// if (isset($_POST['deadline'])) {
+	// 	echo 'deadline';
+	// }
+	?>
+	<?php
 }
 
 function executeBoundSQL($cmdstr, $list) {
@@ -196,7 +232,7 @@ function executeBoundSQL($cmdstr, $list) {
 
 function printResult($result) { //prints results from a select statement
 ?>
-<table id="resultTable">
+<table id="resultTable" class="table">
     <thead>
         <tr>
             <th width="10%">ID</th>
@@ -212,7 +248,7 @@ function printResult($result) { //prints results from a select statement
 	while ($row = OCI_Fetch_Array($result, OCI_BOTH)) : ?>
 	<tr>
         <td><?php echo $row["ID"]; ?></td>
-        <td><?php echo $row["DESCRIPTION"]; ?></td>
+        <td><?php echo $row["DESCRIP"]; ?></td>
         <td><?php echo $row["COURSE_DEPT"];  ?></td>
         <td><?php echo $row["COURSE_NUM"]; ?></td>
         <td><?php echo $row["HAND_IN_LOC"]; ?></td>
@@ -253,19 +289,29 @@ function printQueryResult($result) { //prints results from a select statement
 // Connect Oracle...
 if ($db_conn) {
 
+	foreach ($_POST as $key => $value) {
+	  echo '<p>'.$key.'</p>';
+	  foreach($value as $k => $v)
+	  {
+	  echo '<p>'.$k.'</p>';
+	  echo '<p>'.$v.'</p>';
+	  echo '<hr />';
+	  }
+	}
+
 	if (array_key_exists('reset', $_POST)) {
 		// Drop old table...
 		echo "<br> dropping table <br>";
-		executePlainSQL("Drop table assignment");
+		executePlainSQL("Drop table task");
 
 		// Create new table...
 		echo "<br> creating new table <br>";
-		executePlainSQL("create table assignment (id number, description varchar2(50), course_dept varchar2(4), course_num number, hand_in_loc varchar2(12), deadline varchar2(12), primary key(id))");
+		executePlainSQL("create table task (id number, description varchar2(50), course_dept varchar2(4), course_num number, hand_in_loc varchar2(12), deadline varchar2(12), primary key(id))");
 		OCICommit($db_conn);
 
 	} else
 		if (array_key_exists('querysubmit', $_POST)) {
-			// Find assignments by inputted course department and course number
+			// Find tasks by inputted course department and course number
 			$tuple = array (
 				":bind1" => $_POST['query_course_dept'],
 				":bind2" => $_POST['query_course_num']
@@ -273,10 +319,9 @@ if ($db_conn) {
 			$alltuples = array (
 				$tuple
 			);
-			$result = executeBoundSQL("select id, description, hand_in_loc, deadline from assignment where course_dept=:bind1", $alltuples);
+			$result = executePlainSQL("select id, description, hand_in_loc, deadline from task where course_dept='CPSC'");
 			printQueryResult($result);
 			OCICommit($db_conn);
-
 
 	} else
 		if (array_key_exists('insertsubmit', $_POST)) {
@@ -292,7 +337,7 @@ if ($db_conn) {
 			$alltuples = array (
 				$tuple
 			);
-			executeBoundSQL("insert into assignment values (:bind1, :bind2, :bind3, :bind4, :bind5, :bind6)", $alltuples);
+			executeBoundSQL("insert into task values (:bind1, :bind2, :bind3, :bind4, :bind5, :bind6)", $alltuples);
 			OCICommit($db_conn);
 
 	} else
@@ -309,13 +354,13 @@ if ($db_conn) {
 			$alltuples = array (
 				$tuple
 			);
-			executeBoundSQL("update assignment set description=:bind2, course_dept=:bind3, course_num=:bind4, hand_in_loc=:bind5, deadline=:bind6 where id=:bind1", $alltuples);
+			executeBoundSQL("update task set description=:bind2, course_dept=:bind3, course_num=:bind4, hand_in_loc=:bind5, deadline=:bind6 where id=:bind1", $alltuples);
 			OCICommit($db_conn);
 
 	} else
 		if (array_key_exists('dostuff', $_POST)) {
 			// Insert data into table...
-			executePlainSQL("insert into assignment values (001, 'Assignment 1', 'CPSC', 317, 'X250', '04/08/2016')");
+			executePlainSQL("insert into task values (001, 'Assignment 1', 'CPSC', 317, 'X250', '04/08/2016')");
 			// Inserting data into table using bound variables
 			$list1 = array (
 				":bind1" => 6,
@@ -337,7 +382,7 @@ if ($db_conn) {
 				$list1,
 				$list2
 			);
-			executeBoundSQL("insert into assignment values (:bind1, :bind2, :bind3, :bind4, :bind5, :bind6)", $allrows); //the function takes a list of lists
+			executeBoundSQL("insert into task values (:bind1, :bind2, :bind3, :bind4, :bind5, :bind6)", $allrows); //the function takes a list of lists
 			// Update data...
 			//executePlainSQL("update tab1 set nid=10 where nid=2");
 			// Delete data...
@@ -350,8 +395,9 @@ if ($db_conn) {
 		header("location: querytask.php");
 	} else {
 		// Select data...
-		$result = executePlainSQL("select * from assignment");
-		printResult($result);
+		$result = executePlainSQL("select * from task");
+		// printResult($result);
+		checkCheckboxes();
 	}
 
 	//Commit to save changes...
