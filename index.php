@@ -51,13 +51,13 @@ session_start();
 
 
     <div id="page-content-wrapper">
-	<div class="container-fluid">
-	<div class="row">
-		<div class="col-lg-12">
-		<h1>CS304 TaskLogger</h1>
-    		</div>
-	</div>
-	</div>
+    <div class="container-fluid">
+    <div class="jumbotron">
+	<h1>CS304 TaskLogger</h1>
+	<p class="lead">Student Portal</p>
+    </div>
+    </div>
+    </div>
 
 
 

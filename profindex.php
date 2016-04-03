@@ -36,65 +36,26 @@ session_start();
                     </a>
                 </li>
                 <li>
-                    <a href="#">Reports</a>
+                    <a href="profreport.php">Reports</a>
                 </li>
                 <li>
-                    <a href="#">Courses</a>
+                    <a href="groups.php">Groups</a>
                 </li>
                 <li>
-                    <a href="#">About</a>
-                </li>
-                <li>
-                    <a href="../CourseLogger/logout.php">LOGOUT</a>
+                    <a href="logout.php">Logout</a>
                 </li>
             </ul>
         </div>
         <!-- /#sidebar-wrapper -->
 
-
+    <div id="page-content-wrapper">
+    <div class="container-fluid">
     <div class="jumbotron">
 	<h1>CS304 TaskLogger</h1>
 	<p class="lead">Professor Portal</p>
-	<form method="POST" action="index.php">   
-	<p><input class="btn btn-lg btn-success" type="submit" value="Reset" name="reset"></p>
-	</form>
     </div>
-
-<h3>Insert record into Student table:</h3>
-<div class="container">
-<form action="index.php" method="POST">
-	<label>Student ID</label>
-	<input type="text" name="id"><br />
-	<label>First Name</label>
-	<input type="text" name="fname"><br />
-	<label>Last Name</label>
-	<input type="text" name="lname"><br />
-	<label>Major</label>
-	<input type="text" name="major"><br /><br>
-<input type="submit" value="insert" name="insertsubmit"></p>
-</form>
-</div>
-
-<h3> Update the Student Record by inserting the new values below: </h3>
-<p size="10" color="light-grey">**Note: Student ID cannot change</p>
-
-<div class="container">
-<form method="POST" action="index.php">
-<!--refresh page when submit-->
-
-	<label>Student ID</label>
-	<input type="text" name="id"><br />
-	<label>First Name</label>
-	<input type="text" name="newFName"><br />
-	<label>Last Name</label>
-	<input type="text" name="newLName"><br />	
-	<label>Major</label>
-	<input type="text" name="major"><br /><br>
-<input type="submit" value="update" name="updatesubmit"></p>
-
-<input type="submit" value="run hardcoded queries" name="dostuff"></p>
-</form>
-</div>
+    </div>
+    </div>
 
 <?php
 //it's now parsing PHP
@@ -104,91 +65,37 @@ $success = True; //keep track of errors so it redirects the page only if there a
 $db_conn = OCILogon("ora_f3w8", "a94897071", "ug");
 
 function printResult($result) { //prints results from a select statement
-	echo '<div class="table-striped"><table id="resultTable">';
-	echo '<thead><tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Major</th></tr></thead><tbody>';
-
-	while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
-		echo "<tr><td>".$row["ID"]."</td><td>".$row["FNAME"]."</td><td>".$row["LNAME"]."</td><td>".$row["MAJOR"]."</td></tr>";
-		//echo $row[0];
-	}
-	echo '</tbody></table></div>';
+?>
+<table id="resultTable">
+    <thead>
+        <tr>
+            <th width="10%">Student ID</th>
+            <th width="10%">First Name</th>
+            <th width="10%">Last Name</th>
+            <th width="10%">Major</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+	while ($row = OCI_Fetch_Array($result, OCI_BOTH)) : ?>
+	<tr>
+        <td><?php echo $row["STID"]; ?></td>
+        <td><?php echo $row["FNAME"]; ?></td>
+        <td><?php echo $row["LNAME"];  ?></td>
+        <td><?php echo $row["MAJOR"]; ?></td>
+	</tr>
+        <?php endwhile; ?>
+    </tbody>
+</table>
+<?php
 }
 
 // Connect Oracle...
 if ($db_conn) {
 
-	if (array_key_exists('reset', $_POST)) {
-		// Drop old table...
-		echo "<br> dropping table <br>";
-		executePlainSQL("Drop table student");
-
-		// Create new table...
-		echo "<br> creating new table <br>";
-		executePlainSQL("create table student (id number, fname varchar2(20), lname varchar2(20), major varchar2(4), primary key(id))");
-		OCICommit($db_conn);
-
-	} else
-		if (array_key_exists('insertsubmit', $_POST)) {
-			//Getting the values from user and insert data into the table
-			$tuple = array (
-				":bind1" => $_POST['id'],
-				":bind2" => $_POST['fname'],
-				":bind3" => $_POST['lname'],
-				":bind4" => $_POST['major']
-			);
-			$alltuples = array (
-				$tuple
-			);
-			executeBoundSQL("insert into student values (:bind1, :bind2, :bind3, :bind4)", $alltuples);
-			OCICommit($db_conn);
-
-		} else
-			if (array_key_exists('updatesubmit', $_POST)) {
-				// Update tuple using data from user
-				$tuple = array (
-					":bind1" => $_POST['id'],
-					":bind2" => $_POST['newFName'],
-					":bind3" => $_POST['newLName'],
-					":bind4" => $_POST['major']
-				);
-				$alltuples = array (
-					$tuple
-				);
-				executeBoundSQL("update student set fname=:bind2, lname=:bind3, major=:bind4 where id=:bind1", $alltuples);
-				OCICommit($db_conn);
-
-			} else
-				if (array_key_exists('dostuff', $_POST)) {
-					// Insert data into table...
-					executePlainSQL("insert into student values (001, 'Frank', 'Sinatra', 'BIOL')");
-					// Inserting data into table using bound variables
-					$list1 = array (
-						":bind1" => 6,
-						":bind2" => "Doris",
-						":bind3" => "Day",
-						":bind4" => "MUSI"
-					);
-					$list2 = array (
-						":bind1" => 7,
-						":bind2" => "Bob",
-						":bind3" => "Barker",
-						":bind4" => "HIST"
-					);
-					$allrows = array (
-						$list1,
-						$list2
-					);
-					executeBoundSQL("insert into student values (:bind1, :bind2, :bind3, :bind4)", $allrows); //the function takes a list of lists
-					// Update data...
-					//executePlainSQL("update tab1 set nid=10 where nid=2");
-					// Delete data...
-					//executePlainSQL("delete from tab1 where nid=1");
-					OCICommit($db_conn);
-				}
-
 	if ($_POST && $success) {
 		//POST-REDIRECT-GET -- See http://en.wikipedia.org/wiki/Post/Redirect/Get
-		header("location: index.php");
+		header("location: profindex.php");
 	} else {
 		// Select data...
 		$result = executePlainSQL("select * from student");
@@ -238,14 +145,23 @@ if ($db_conn) {
      OCI_RETURN_LOBS - return the value of a LOB of the descriptor.  
      Default mode is OCI_BOTH.  */
 ?>
-/* Script to sort the table */
-//<script>
+<script>
 	$(document).ready(function(){
 	$(function(){
 		$("#resultTable").tablesorter();
 		});
 	});
 </script>
+
+<script>
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+    </script>
+
+</div>
+</div>
 
 </body>
 </html>
