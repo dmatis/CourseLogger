@@ -106,7 +106,7 @@ function executePlainSQL($cmdstr) {
 
 //Connect Oracle...
 if ($db_conn) {
-	if (array_key_exists('submit', $_POST)) {
+	if (array_key_exists('update-submit', $_POST)) {
 		$arr_completed = $_POST['checkedTasks'];
 		foreach ($arr_completed as $compTask){
 			executePlainSQL("update group_performs set completed='Y' where task_id='".$compTask."' and stid='".$_SESSION['myid']."'");
@@ -116,6 +116,13 @@ if ($db_conn) {
 		}	
 		OCICommit($db_conn);
 	}
+	if ((array_key_exists('join-submit', $_POST)) and count($_POST['jointask']) == count($_POST['joingroup']) ){
+		for ($i = 0; $i < count($_POST['jointask']); $i++){
+			executePlainSQL("insert into group_performs values(".$_SESSION['myid'].",".$_POST['jointask'][$i].",".$_POST['joingroup'][$i]. ", 0, 'N', null )");
+		}
+	OCICommit($db_conn); 
+	}	
+
 	$tasks = executePlainSQL("select t.task_id, p.group_id, t.descrip, t.course_dept, t.course_num, t.deadline, p.completed, p.grade, p.time_spent from task t, student s, group_performs p where s.stid='".$_SESSION[myid]."' AND p.stid=s.stid AND t.task_id=p.task_id");
 	
 	$waiting = executePlainSQL("select DISTINCT t.task_id, p.group_id, t.descrip, t.course_dept, t.course_num, t.deadline from task t, student s, group_performs p where t.task_id=p.task_id AND EXISTS (select GP.task_id, GP.group_id  from group_performs GP where p.task_id = GP.task_id and p.group_id = GP.group_id group by GP.task_id, GP.group_id having count(*) < (select max_size from group_project PRJ where GP.task_id = PRJ.task_id and PRJ.group_id = GP.group_id ))");
@@ -156,11 +163,12 @@ if ($db_conn) {
         <td><button type="button" onclick=<?php echo "getMembers(".$row["TASK_ID"].",".$row[GROUP_ID].")";?>>Get members</button></td>
 	</tr>
         <?php endwhile; ?>
-	<input type="submit" value="update" name="submit">
+	<input type="submit" value="update" name="update-submit">
     	</tbody>
     	</table>
     </form>
         <div id="members">Members of the group will go here</div>
+	<form method="post" action="groups.php">
 	<table>
         <caption>Join a group</caption>
         <thead>
@@ -171,19 +179,24 @@ if ($db_conn) {
             <th width="10%">Course Dept</th>
             <th width="10%">Course Num</th>
             <th width="10%">Deadline</th>
-            </tr></thead>
+	    <th width="10%">Join group</th>    
+	</tr></thead>
         <tbody>
             <?php while ($row = OCI_Fetch_Array($waiting, OCI_BOTH)) : ?>
             <tr>
-            <td><?php echo $row["TASK_ID"]?></td>
-            <td><?php echo $row["GROUP_ID"]?></td>
-            <td><?php echo $row["DESCRIP"]?></td>
-            <td><?php echo $row["COURSE_DEPT"]?></td>
-            <td><?php echo $row["COURSE_NUM"]?></td>
-            <td><?php echo $row["DEADLINE"]?></td>
+            <td><?php echo $row["TASK_ID"];?></td>
+            <td><?php echo $row["GROUP_ID"];?></td>
+            <td><?php echo $row["DESCRIP"];?></td>
+            <td><?php echo $row["COURSE_DEPT"];?></td>
+            <td><?php echo $row["COURSE_NUM"];?></td>
+            <td><?php echo $row["DEADLINE"];?></td>
+	    <td> <input type="checkbox" name="jointask[]" value=<?php echo $row["TASK_ID"];?>><input type="checkbox" name="joingroup[]" value=<?php echo $row["GROUP_ID"];?>></td>
         </tr>
             <?php endwhile; ?>
+	<input type = "submit" name="join-submit" value = "join">
+	</form>
         </tbody>
+	
         
         </table>
     </div>
