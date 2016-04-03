@@ -12,7 +12,14 @@
 	<!-- Sortable Table Script -->
 	<script type="text/javascript" src="jquery.tablesorter.min.js"></script>	
 
-	<title>All Tasks Complete </title>
+	<title><?php 
+		if (isset($_POST["maxavg"])) {
+			echo "Maximum Average Time Spent in ".$_POST["course_dept"]." ".$_POST["course_num"].": ";
+		}
+		else if (isset($_POST["minavg"])) {
+			echo "Minimum Average Time Spent in ".$_POST["course_dept"]." ".$_POST["course_num"].": ";
+		}
+			?></title>
 
 </head>
 <body>
@@ -48,7 +55,14 @@
 	<div class="container-fluid">
 	<div class="row">
 		<div class="col-lg-12">
-		<h3><?php echo "Students who have finished all tasks in ".$_POST["course_dept"]." ".$_POST["course_num"].": "?></h3>
+		<h3><?php 
+		if (isset($_POST["maxavg"])) {
+			echo "Maximum average time spent on tasks for ".$_POST["course_dept"]." ".$_POST["course_num"].": ";
+		}
+		else if (isset($_POST["minavg"])) {
+			echo "Minimum average time spent on tasks for ".$_POST["course_dept"]." ".$_POST["course_num"].": ";
+		}
+			?></h3>
     	</div>
 	</div>
 	</div>
@@ -159,43 +173,27 @@ function printAllComplete($all_complete, $course_dept, $course_num) { //prints r
 $course_dept = $_POST['course_dept'];
 $course_num = $_POST['course_num'];
 
-print "CONTENT_TYPE: " . $_SERVER['CONTENT_TYPE'] . "<BR />";
-$data = file_get_contents('php://input'); print "DATA: <pre>";
-var_dump($data);
-var_dump($_POST);
-print "</pre>";
+// Displays $_POST data
+// print "CONTENT_TYPE: " . $_SERVER['CONTENT_TYPE'] . "<BR />";
+// $data = file_get_contents('php://input'); print "DATA: <pre>";
+// var_dump($data);
+// var_dump($_POST);
+// print "</pre>";
 
-$db_conn = OCILogon("ora_v7t8", "a35176114", "ug");
+$db_conn = OCILogon("ora_f3w8", "a94897071", "ug");
 
-// executePlainSQLForDrop("drop table performs_each");
-// executePlainSQLForDrop("drop table performs_each_group");
-// executePlainSQLForDrop("drop table performs_total");
+// Alter the query here
+executePlainSQLForDrop("drop table task_average");
+executePlainSQL("create table task_average as select task_id, avg(time_spent) as avgtime from (select p.task_id, p.time_spent from (select task_id, time_spent from performs union all select task_id, time_spent from group_performs) p, task t where p.task_id = t.task_id and t.course_dept='$course_dept' and t.course_num='$course_num') group by task_id");
+$query = executePlainSQL("select t.task_id, t.descrip from task_average ta, task t where ta.task_id = t.task_id and ta.avgtime = (select max(avgtime) from task_average)");
 
-// executePlainSQL("create table performs_each as select stid 
-// 	from performs 
-// 	where task_id in (select task_id from task where course_num='$course_num' and course_dept='$course_dept') and completed='Y' 
-// 	group by stid having count(*) = (select count(*) 
-//                                  from task 
-//                                  where course_num='$course_num' and course_dept='$course_dept')");
+// Need to handle cases where there are no tasks
+// Should reflect average time spent, not average grade
+// Display min/max average
+$average = "0 hours";
+?><h3><?php echo $average;?></h3><?php
 
-// executePlainSQL("create table performs_each_group as select stid
-// 	from group_performs 
-// 	where task_id in (select task_id from task where course_num='$course_num' and course_dept='$course_dept') and completed='Y' 
-// 	group by stid having count(*) = (select count(*) 
-//                                  from task 
-//                                  where course_num='$course_num' and course_dept='$course_dept')");
-                    
-// executePlainSQL("create table performs_total as select performs_each.stid 
-// 	from performs_each
-// 	left join performs_each_group
-// 	on performs_each.stid=performs_each_group.stid");
-
-// $all_complete = executePlainSQL("select fname, lname
-// 	from student S, performs_total PT
-// 	where S.stid = PT.stid");
-
-// printAllComplete($all_complete, $course_dept, $course_num);
-// OCICommit($db_conn);
+OCICommit($db_conn);
 
 ?>
 <div class="row" style="height:50px"></div>

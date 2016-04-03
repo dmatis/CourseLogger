@@ -59,7 +59,7 @@
 //html; it's now parsing PHP
 
 $success = True; //keep track of errors so it redirects the page only if there are no errors
-$db_conn = OCILogon("ora_v7t8", "a35176114", "ug");
+$db_conn = OCILogon("ora_f3w8", "a94897071", "ug");
 
 function executePlainSQL($cmdstr) { //takes a plain (no bound variables) SQL command and executes it
 	//echo "<br>running ".$cmdstr."<br>";
@@ -165,21 +165,21 @@ function printCourses($result) { //prints results from a select statement
         <td></td>
         <td></td>
         <td>
-        	<div class="col-md-offset-2 col-md-3">
+        	<div class="col-md-4">
 	        	<form method="POST" action="profreport_avg_out.php">
 					<input type="hidden" name="course_dept" value="<?php echo $course_dept;?>">
 					<input type="hidden" name="course_num" value="<?php echo $course_num;?>">
-					<input class="btn btn-xs btn-success" type="submit" value="Min. Average" name="minavg">
+					<input class="btn btn-xs btn-success" type="submit" value="Min. Avg. Time" name="minavg">
 				</form>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-4">
 				<form method="POST" action="profreport_avg_out.php">
 					<input type="hidden" name="course_dept" value="<?php echo $course_dept;?>">
 					<input type="hidden" name="course_num" value="<?php echo $course_num;?>">
-					<input class="btn btn-xs btn-success" type="submit" value="Max. Average" name="maxavg">
+					<input class="btn btn-xs btn-success" type="submit" value="Max. Avg. Time" name="maxavg">
 				</form>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-4">
 				<form method="POST" action="profreport_out.php">
 					<input type="hidden" name="ac_course_dept" value="<?php echo $course_dept;?>">
 					<input type="hidden" name="ac_course_num" value="<?php echo $course_num;?>">
