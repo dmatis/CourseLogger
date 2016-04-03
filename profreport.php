@@ -143,14 +143,13 @@ function executeBoundSQL($cmdstr, $list) {
 
 function printCourses($result) { //prints results from a select statement
 ?>
-<table id="reportTable" class="table" style="empty-cells:show">
+<table id="reportTable" class="table" style="table-layout:fixed;empty-cells:show">
     <thead>
         <tr>
-            <th width="10%">Course</th>
-            <th width="10%" style="text-align:right">Average</th>
-            <th width="10%" style="text-align:right">Completion rate</th>
-            <th width="5%"></th>
-            <th width="5%"></th>
+            <th width="15%">Course</th>
+            <th width="2%" style="text-align:right">Average</th>
+            <th width="5%" style="text-align:right">Completion rate</th>
+            <th width="10%"></th>
         </tr>
     </thead>
     <tbody>
@@ -160,17 +159,55 @@ function printCourses($result) { //prints results from a select statement
     $course_num = $row["COURSE_NUM"];
     ?>
 	<tr style="background-color:#ddd">
-        <td style="font-weight:600"><?php echo $course_dept;?> <?php echo $course_num; ?>:</td>
+        <td style="font-weight:600">
+        	<?php echo $course_dept;?> <?php echo $course_num; ?>:
+        </td>
         <td></td>
         <td></td>
-        <td></td>
+        <td>
+        	<div class="col-md-offset-4 col-md-3">
+	        	<form method="POST" action="profreport.php">
+					<input type="hidden" name="avg_course_dept" value="<?php echo $course_dept;?>">
+					<input type="hidden" name="avg_course_num" value="<?php echo $course_num;?>">
+					<input class="btn btn-xs btn-success" type="submit" value="Averages" name="avgs">
+				</form>
+			</div>
+			<!-- <div class="col-md-4">
+				<form method="POST" action="profreport.php">
+					<input type="hidden" name="max_course_dept" value="<?php echo $course_dept;?>">
+					<input type="hidden" name="max_course_num" value="<?php echo $course_num;?>">
+					<input class="btn btn-xs btn-default" type="submit" value="Max. average" name="maxavg">
+				</form>
+			</div> -->
+			<div class="col-md-3">
+				<form method="POST" action="profreport_out.php">
+					<input type="hidden" name="ac_course_dept" value="<?php echo $course_dept;?>">
+					<input type="hidden" name="ac_course_num" value="<?php echo $course_num;?>">
+					<input class="btn btn-xs btn-success" type="submit" value="Completed by" name="allcomplete">
+				</form>
+			</div>
+        </td>
+        <!-- <td align="right">
+        	<form method="POST" action="profreport.php">
+				<input type="hidden" name="min_course_dept" value="<?php echo $course_dept;?>">
+				<input type="hidden" name="min_course_num" value="<?php echo $course_num;?>">
+				<input class="btn btn-xs btn-success" type="submit" value="Get min. average" name="minavg">
+			</form>
+		</td>
+        <td align="right" style="width:80px">
+        	<form method="POST" action="profreport.php">
+				<input type="hidden" name="max_course_dept" value="<?php echo $course_dept;?>">
+				<input type="hidden" name="max_course_num" value="<?php echo $course_num;?>">
+				<input class="btn btn-xs btn-success" type="submit" value="Get max. average" name="maxavg">
+			</form>
+        </td>
         <td>
         	<form method="POST" action="profreport_out.php">
 				<input type="hidden" name="ac_course_dept" value="<?php echo $course_dept;?>">
 				<input type="hidden" name="ac_course_num" value="<?php echo $course_num;?>">
-				<input class="btn btn-xs btn-success" type="submit" value="Completed" name="allcomplete">
+				<input class="btn btn-xs btn-success" type="submit" value="Completed by" name="allcomplete">
 			</form>
-		</td>
+		</td> -->
 	</tr>
     <?php 
     $tasks = executePlainSQL("select task_id, descrip from task where course_dept='$course_dept' and course_num='$course_num'");
@@ -195,16 +232,18 @@ function printTasks($result) { //prints results from a select statement
 	    printAverage($grade_avg);
 	    printCRate($complete_count, $total_count);
 	    ?>
-        <td align="right">
-        	<form method="POST" action="profreport.php">   
-			<p><input class="btn btn-xs btn-default" type="submit" value="Update" name="updatetask"></p>
-			</form>
-		</td>
-		<td>
-			<form method="POST" action='profreport.php'>
-				<input type="hidden" name='task_id' value="<?php echo $task_id?>">
-				<input class="btn btn-xs btn-danger" type="submit" value="Delete" name="deletetask">
-			</form>
+        <td>
+    		<div class="col-md-offset-4 col-md-3">
+	        	<form method="POST" action="profreport.php">   
+					<p><input class="btn btn-xs btn-default" type="submit" value="Update" name="updatetask"></p>
+				</form>
+			</div>
+			<div class="col-md-3">
+				<form method="POST" action='profreport.php'>
+					<input type="hidden" name='task_id' value="<?php echo $task_id?>">
+					<input class="btn btn-xs btn-danger" type="submit" value="Delete" name="deletetask">
+				</form>
+			</div>
         </td>
 	</tr>
     <?php endwhile; ?>
@@ -246,23 +285,11 @@ function printCRate($complete_count_result, $total_count_result) { //prints resu
 <?php
 }
 
-function printAllComplete($all_complete, $course_dept, $course_num) { //prints results from a select statement
-?>
-	<div class="container">
-		<?php "Students that have finished all tasks in '$course_dept' '$course_num': "?>
-		<?php 
-		while ($row = OCI_Fetch_Array($all_complete, OCI_BOTH)) : ?>
-		<p><?php echo $row["FNAME"];?> <?php echo $row["LNAME"];?></p>
-		<?php endwhile; ?>
-	</div>
-<?php
-}
-
-// print "CONTENT_TYPE: " . $_SERVER['CONTENT_TYPE'] . "<BR />";
-// $data = file_get_contents('php://input'); print "DATA: <pre>";
-// var_dump($data);
-// var_dump($_POST);
-// print "</pre>";
+print "CONTENT_TYPE: " . $_SERVER['CONTENT_TYPE'] . "<BR />";
+$data = file_get_contents('php://input'); print "DATA: <pre>";
+var_dump($data);
+var_dump($_POST);
+print "</pre>";
 
 // Connect Oracle...
 if ($db_conn) {
@@ -314,7 +341,7 @@ if ($db_conn) {
 		OCICommit($db_conn);
 	}
 
-	if ($_POST && $success) {
+	if ($_POST) {
 		//POST-REDIRECT-GET -- See http://en.wikipedia.org/wiki/Post/Redirect/Get
 		header("location: profreport.php");
 	} else {

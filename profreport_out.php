@@ -198,6 +198,7 @@ printAllComplete($all_complete, $ac_course_dept, $ac_course_num);
 OCICommit($db_conn);
 
 ?>
+<div class="row" style="height:50px"></div>
 <div class="container">
 	<button class="btn" onclick="goBack()">Go Back</button>
 	<script>
