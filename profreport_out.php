@@ -34,6 +34,9 @@
                     <a href="groups.php">Groups</a>
                 </li>
                 <li>
+                    <a href="tasksbycourse.php">Search</a>
+                </li>
+                <li>
                     <a href="logout.php">Logout</a>
                 </li>
             </ul>

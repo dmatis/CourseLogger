@@ -34,6 +34,9 @@
                     <a href="groups.php">Groups</a>
                 </li>
                 <li>
+                    <a href="tasksbycourse.php">Search</a>
+                </li>
+                <li>
                     <a href="logout.php">Logout</a>
                 </li>
             </ul>
@@ -305,7 +308,7 @@ if ($db_conn) {
 
 	else if (array_key_exists('allcomplete', $_POST)) {
 
-		$ac_course_dept = $_POST['ac_course_dept'];
+		/*$ac_course_dept = $_POST['ac_course_dept'];
 		$ac_course_num = $_POST['ac_course_num'];
 
 		executePlainSQLForDrop("drop table performs_each");
@@ -336,7 +339,7 @@ if ($db_conn) {
 			where S.stid = PT.stid");
 
 		printAllComplete($all_complete, $ac_course_dept, $ac_course_num);
-		OCICommit($db_conn);
+		OCICommit($db_conn);*/
 	}
 
 	if ($_POST && $success) {

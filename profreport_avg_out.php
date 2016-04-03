@@ -41,6 +41,9 @@
                     <a href="groups.php">Groups</a>
                 </li>
                 <li>
+                    <a href="tasksbycourse.php">Search</a>
+                </li>
+                <li>
                     <a href="logout.php">Logout</a>
                 </li>
             </ul>
@@ -145,25 +148,14 @@ function executeBoundSQL($cmdstr, $list) {
 	}
 }
 
-function printAllComplete($all_complete, $course_dept, $course_num) { //prints results from a select statement
+function printAllComplete($query, $course_dept, $course_num) { //prints results from a select statement
 ?>
-	<div class="container" style="display:hidden" id="no_students">
-		<p><?php echo "No students have completed all tasks in ".$_POST["course_dept"]." ".$_POST["course_num"]."."?></p>
-	</div>
 	<div class="container" id="complete_students">
 		<?php 
-		while ($row = OCI_Fetch_Array($all_complete, OCI_BOTH)) : ?>
-		<li><?php echo $row["FNAME"];?> <?php echo $row["LNAME"];?></li>
+		while ($row = OCI_Fetch_Array($query, OCI_BOTH)) : ?>
+		<li><?php echo "Task # ".$row["TASK_ID_RESULT"];?><?php echo ", ".$row["DESCRIP_RESULT"]. ", ";?> <?php echo "with ". $row["AVGTIME_RESULT"]. " hours";?></li>
 		<?php endwhile; ?>
 	</div>
-	<script>
-	if ($("#complete_students").has("li").length == 0) {
-		$("#no_students").show();
-	}
-	else{
-		$("#no_students").hide();
-	}
-	</script>
 <?php
 }
 
@@ -182,13 +174,21 @@ $db_conn = OCILogon("ora_f3w8", "a94897071", "ug");
 // Alter the query here
 executePlainSQLForDrop("drop table task_average");
 executePlainSQL("create table task_average as select task_id, avg(time_spent) as avgtime from (select p.task_id, p.time_spent from (select task_id, time_spent from performs union all select task_id, time_spent from group_performs) p, task t where p.task_id = t.task_id and t.course_dept='$course_dept' and t.course_num='$course_num') group by task_id");
-$query = executePlainSQL("select t.task_id, t.descrip from task_average ta, task t where ta.task_id = t.task_id and ta.avgtime = (select max(avgtime) from task_average)");
+$query;
+if (isset($_POST["maxavg"])) {
+	$query = executePlainSQL("select t.task_id as task_id_result, t.descrip as descrip_result, ta.avgtime as avgtime_result from task_average ta, task t where ta.task_id = t.task_id and ta.avgtime = (select max(avgtime) from task_average)");
+}
+else if (isset($_POST["minavg"])) {
+	$query = executePlainSQL("select t.task_id as task_id_result, t.descrip as descrip_result, ta.avgtime as avgtime_result from task_average ta, task t where ta.task_id = t.task_id and ta.avgtime = (select min(avgtime) from task_average)");
+}
+//$query = executePlainSQL("select t.task_id, t.descrip from task_average ta, task t where ta.task_id = t.task_id and ta.avgtime = (select max(avgtime) from task_average)");
 
 // Need to handle cases where there are no tasks
 // Should reflect average time spent, not average grade
 // Display min/max average
-$average = "0 hours";
-?><h3><?php echo $average;?></h3><?php
+printAllComplete($query, $course_dept, $course_num);
+//$average = "0 hours";
+//?><h3><?php echo $average;?></h3><?php
 
 OCICommit($db_conn);
 
