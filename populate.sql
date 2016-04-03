@@ -98,8 +98,7 @@ ALTER TABLE performs ADD CONSTRAINT stid
 	ON DELETE CASCADE;
 
 ALTER TABLE performs ADD CONSTRAINT task_id
-	FOREIGN KEY (task_id) REFERENCES task(task_id)
-	ON DELETE CASCADE;
+	FOREIGN KEY (task_id) REFERENCES task(task_id);
 
 ALTER TABLE group_performs ADD CONSTRAINT group_stid
     FOREIGN KEY (stid) REFERENCES student (stid)
