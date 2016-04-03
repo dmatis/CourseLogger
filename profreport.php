@@ -59,7 +59,7 @@
 //html; it's now parsing PHP
 
 $success = True; //keep track of errors so it redirects the page only if there are no errors
-$db_conn = OCILogon("ora_f3w8", "a94897071", "ug");
+$db_conn = OCILogon("ora_v7t8", "a35176114", "ug");
 
 function executePlainSQL($cmdstr) { //takes a plain (no bound variables) SQL command and executes it
 	//echo "<br>running ".$cmdstr."<br>";
@@ -146,7 +146,7 @@ function printCourses($result) { //prints results from a select statement
 <table id="reportTable" class="table" style="table-layout:fixed;empty-cells:show">
     <thead>
         <tr>
-            <th width="15%">Course</th>
+            <th width="10%">Course</th>
             <th width="2%" style="text-align:right">Average</th>
             <th width="5%" style="text-align:right">Completion rate</th>
             <th width="10%"></th>
@@ -165,25 +165,25 @@ function printCourses($result) { //prints results from a select statement
         <td></td>
         <td></td>
         <td>
-        	<div class="col-md-offset-4 col-md-3">
-	        	<form method="POST" action="profreport.php">
-					<input type="hidden" name="avg_course_dept" value="<?php echo $course_dept;?>">
-					<input type="hidden" name="avg_course_num" value="<?php echo $course_num;?>">
-					<input class="btn btn-xs btn-success" type="submit" value="Averages" name="avgs">
+        	<div class="col-md-offset-2 col-md-3">
+	        	<form method="POST" action="profreport_avg_out.php">
+					<input type="hidden" name="course_dept" value="<?php echo $course_dept;?>">
+					<input type="hidden" name="course_num" value="<?php echo $course_num;?>">
+					<input class="btn btn-xs btn-success" type="submit" value="Min. Average" name="minavg">
 				</form>
 			</div>
-			<!-- <div class="col-md-4">
-				<form method="POST" action="profreport.php">
-					<input type="hidden" name="max_course_dept" value="<?php echo $course_dept;?>">
-					<input type="hidden" name="max_course_num" value="<?php echo $course_num;?>">
-					<input class="btn btn-xs btn-default" type="submit" value="Max. average" name="maxavg">
+			<div class="col-md-3">
+				<form method="POST" action="profreport_avg_out.php">
+					<input type="hidden" name="course_dept" value="<?php echo $course_dept;?>">
+					<input type="hidden" name="course_num" value="<?php echo $course_num;?>">
+					<input class="btn btn-xs btn-success" type="submit" value="Max. Average" name="maxavg">
 				</form>
-			</div> -->
+			</div>
 			<div class="col-md-3">
 				<form method="POST" action="profreport_out.php">
 					<input type="hidden" name="ac_course_dept" value="<?php echo $course_dept;?>">
 					<input type="hidden" name="ac_course_num" value="<?php echo $course_num;?>">
-					<input class="btn btn-xs btn-success" type="submit" value="Completed by" name="allcomplete">
+					<input class="btn btn-xs btn-success" type="submit" value="Completed By" name="allcomplete">
 				</form>
 			</div>
         </td>
@@ -233,12 +233,12 @@ function printTasks($result) { //prints results from a select statement
 	    printCRate($complete_count, $total_count);
 	    ?>
         <td>
-    		<div class="col-md-offset-4 col-md-3">
+    		<div class="col-md-offset-7 col-md-2">
 	        	<form method="POST" action="profreport.php">   
 					<p><input class="btn btn-xs btn-default" type="submit" value="Update" name="updatetask"></p>
 				</form>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-2">
 				<form method="POST" action='profreport.php'>
 					<input type="hidden" name='task_id' value="<?php echo $task_id?>">
 					<input class="btn btn-xs btn-danger" type="submit" value="Delete" name="deletetask">
@@ -285,11 +285,11 @@ function printCRate($complete_count_result, $total_count_result) { //prints resu
 <?php
 }
 
-print "CONTENT_TYPE: " . $_SERVER['CONTENT_TYPE'] . "<BR />";
-$data = file_get_contents('php://input'); print "DATA: <pre>";
-var_dump($data);
-var_dump($_POST);
-print "</pre>";
+// print "CONTENT_TYPE: " . $_SERVER['CONTENT_TYPE'] . "<BR />";
+// $data = file_get_contents('php://input'); print "DATA: <pre>";
+// var_dump($data);
+// var_dump($_POST);
+// print "</pre>";
 
 // Connect Oracle...
 if ($db_conn) {
@@ -341,7 +341,7 @@ if ($db_conn) {
 		OCICommit($db_conn);
 	}
 
-	if ($_POST) {
+	if ($_POST && $success) {
 		//POST-REDIRECT-GET -- See http://en.wikipedia.org/wiki/Post/Redirect/Get
 		header("location: profreport.php");
 	} else {
