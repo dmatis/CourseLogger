@@ -381,5 +381,5 @@ insert into group_performs values(12596478, 6, 2, 9, 'N', null);
 insert into group_performs values(56897412, 6, 3, 7, 'N', null);
 insert into group_performs values(56893214, 6, 3, 7, 'N', null);
 insert into group_performs values(78956321, 6, 3, 7, 'N', null);
-
+insert into group_performs values(25963575, 30, 2, 8, 'N', null);
  
