@@ -36,10 +36,7 @@ session_start();
                     <a href="#">Reports</a>
                 </li>
                 <li>
-                    <a href="#">Add Time</a>
-                </li>
-                <li>
-                    <a href="#">Overview</a>
+                    <a href="groups.php">Groups</a>
                 </li>
                 <li>
                     <a href="logout.php">Logout</a>
@@ -61,8 +58,15 @@ session_start();
 	</div>
     </div>
 
-<?php
+<!--<form action="studreport.php" method="post">
+    <input type="text" name="darren">
+    <input type="submit" name="update">
+</form>
+-->
+<h1><?php echo $_POST['darren'] ?></h1>
 
+
+<?php
 $success = True; //keep track of errors
 $db_conn = OCILogon("ora_f3w8", "a94897071", "ug");
 
@@ -83,47 +87,29 @@ function executePlainSQL($cmdstr) {
 		$e = oci_error($statement);
 		echo htmlentities($e['message']);
 		$success = False;
-	} else {
-
 	}
 	return $statement;
 }
 
-function executeBoundSQL($cmdstr, $list) {
-
-	global $db_conn, $success;
-	$statement = OCIParse($db_conn, $cmdstr);
-
-	if (!$statement) {
-		echo "<br>Cannot parse the following command: " . $cmdstr . "<br>";
-		$e = OCI_Error($db_conn);
-		echo htmlentities($e['message']);
-		$success = False;
-	}
-
-	foreach ($list as $tuple) {
-		foreach ($tuple as $bind => $val) {
-			//echo $val;
-			//echo "<br>".$bind."<br>";
-			OCIBindByName($statement, $bind, $val);
-			unset ($val);
-
+//Connect Oracle...
+if ($db_conn) {
+	if (array_key_exists('submit', $_POST)) {
+		$arr_completed = $_POST['checkedTasks'];
+		foreach ($arr_completed as $compTask){
+			executePlainSQL("update performs set completed='Y' where task_id='".$compTask."' and stid='".$_SESSION['myid']."'");
 		}
-		$r = OCIExecute($statement, OCI_DEFAULT);
-		if (!$r) {
-			echo "<br>Cannot execute the following command: " . $cmdstr . "<br>";
-			$e = OCI_Error($statement);
-			echo htmlentities($e['message']);
-			echo "<br>";
-			$success = False;
-		}
+		for ($i = 0; $i < count($_POST['timeSpent']); $i++){
+			executePlainSQL("update performs set time_spent=".$_POST['timeSpent'][$i]." where task_id='".$_SESSION['IDS'][$i]."'");
+		}	
+		OCICommit($db_conn);
 	}
-}
+	$tasks = executePlainSQL("select t.task_id, t.descrip, t.course_dept, t.course_num, t.deadline, p.completed, p.grade, p.time_spent from task t, student s, performs p where s.stid='".$_SESSION[myid]."' AND p.stid=s.stid AND t.task_id=p.task_id");
 
-function printTasks($result) { //prints the student's tasks
-?>
-<table id="reportTable" class="table" style="empty-cells:show">
-    <thead>
+	?>
+    <div class="container">
+    <form method="post" action="studreport.php">
+    	<table id="reportTable" class="table" style="empty-cells:show">
+    	<thead>
         <tr>
             <th width="10%">Task ID</th>
             <th width="10%">Description</th>
@@ -134,52 +120,36 @@ function printTasks($result) { //prints the student's tasks
             <th width="10%">Grade</th>
             <th width="10%">Time Spent</th>
         </tr>
-    </thead>
-    <tbody>
-        <?php
-	while ($row = OCI_Fetch_Array($result, OCI_BOTH)) : ?>
+    	</thead>
+    	<tbody>
+	<?php $_SESSION['IDS'] = array(); ?>
+	<?php while ($row = OCI_Fetch_Array($tasks, OCI_BOTH)) : ?>
+	<?php array_push($_SESSION['IDS'], $row["TASK_ID"]); ?>
 	<tr>
         <td><?php echo $row["TASK_ID"]; ?></td>
         <td><?php echo $row["DESCRIP"]; ?></td>
         <td><?php echo $row["COURSE_DEPT"];  ?></td>
         <td><?php echo $row["COURSE_NUM"]; ?></td>
         <td><?php echo $row["DEADLINE"];  ?></td>
-        <td><input type="checkbox" <?php if ($row["COMPLETED"] == 'Y') echo "checked='checked'"; ?></td>
+        <!--<input type="hidden" name="checkedTasks[]" value='N'>-->
+	<td><?php if ($row["COMPLETED"] == 'Y') echo "<input type='checkbox' name='checkedTasks[]' checked='checked' value='".$row["TASK_ID"]."'<br>"; else echo "<input type='checkbox' name='checkedTasks[]' value='".$row["TASK_ID"]."'<br>"; ?></td>
         <td><?php echo $row["GRADE"]; ?></td>
-        <td><?php echo $row["TIME_SPENT"]; ?></td>
+        <td><input type="number" name="timeSpent[]" <?php echo "id=" . $row["TASK_ID"] . " value=" . $row["TIME_SPENT"]; ?>></td>
 	</tr>
         <?php endwhile; ?>
-    </tbody>
-</table>
+	<input type="submit" value="update" name="submit">
+    	</tbody>
+    	</table>
+    </form>
+    </div>
+
 <?php
-}
-
-// Connect Oracle...
-if ($db_conn) {
-
-	if (array_key_exists('deletetask', $_POST)) {
-		//$tuple = array (
-		//		":bind1" => $_POST['id'],
-		//	);
-		//	$alltuples = array (
-		//		$tuple
-		//	);
-		// executeBoundSQL("delete from assignment where id=:bind1", $alltuples);
-		//$query = "delete from assignment where id={$_POST['id']}";
-		//mysql_query($query);
-		// OCICommit($db_conn);
-	}
-
-	if ($_POST && $success) {
+	if ($_POST) {
 		header("location: studreport.php");
-	} else {
-		// Select data...
-		$tasks = executePlainSQL("select t.task_id, t.descrip, t.course_dept, t.course_num, t.deadline, p.completed, p.grade, p.time_spent from task t, student s, performs p where s.stid='".$_SESSION[myid]."' AND p.stid=s.stid AND t.task_id=p.task_id");
-		printTasks($tasks);
 	}
 
 	//Commit to save changes...
-	OCILogoff($db_conn);
+	//OCILogoff($db_conn);
 } else {
 	echo "cannot connect";
 	$e = OCI_Error(); // For OCILogon errors pass no handle
