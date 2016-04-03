@@ -165,7 +165,7 @@ function printCourses($result) { //prints results from a select statement
         <td></td>
         <td></td>
         <td>
-        	<form method="POST" action="allcomplete.php">
+        	<form method="POST" action="profreport_out.php">
 				<input type="hidden" name="ac_course_dept" value="<?php echo $course_dept;?>">
 				<input type="hidden" name="ac_course_num" value="<?php echo $course_num;?>">
 				<input class="btn btn-xs btn-success" type="submit" value="Completed" name="allcomplete">
@@ -258,11 +258,11 @@ function printAllComplete($all_complete, $course_dept, $course_num) { //prints r
 <?php
 }
 
-print "CONTENT_TYPE: " . $_SERVER['CONTENT_TYPE'] . "<BR />";
-$data = file_get_contents('php://input'); print "DATA: <pre>";
-var_dump($data);
-var_dump($_POST);
-print "</pre>";
+// print "CONTENT_TYPE: " . $_SERVER['CONTENT_TYPE'] . "<BR />";
+// $data = file_get_contents('php://input'); print "DATA: <pre>";
+// var_dump($data);
+// var_dump($_POST);
+// print "</pre>";
 
 // Connect Oracle...
 if ($db_conn) {
