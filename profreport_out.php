@@ -23,18 +23,15 @@
         <div id="sidebar-wrapper">
             <ul class="sidebar-nav">
                 <li class="sidebar-brand">
-                    <a href="#">
+                    <a href="profindex.php">
                         HOME
                     </a>
                 </li>
                 <li>
-                    <a href="#">Reports</a>
+                    <a href="profreport.php">Reports</a>
                 </li>
                 <li>
-                    <a href="#">Add Time</a>
-                </li>
-                <li>
-                    <a href="#">Overview</a>
+                    <a href="groups.php">Groups</a>
                 </li>
                 <li>
                     <a href="logout.php">Logout</a>
