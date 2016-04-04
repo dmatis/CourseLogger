@@ -234,17 +234,11 @@ function printTasks($result) { //prints results from a select statement
 	    printCRate($complete_count, $total_count);
 	    ?>
         <td>
-    		<div class="col-md-offset-7 col-md-2">
-	        	<form method="POST" action="profreport.php">   
-					<p><input class="btn btn-xs btn-default" type="submit" value="Update" name="updatetask"></p>
-				</form>
-			</div>
-			<div class="col-md-2">
-				<form method="POST" action='profreport.php'>
-					<input type="hidden" name='task_id' value="<?php echo $task_id?>">
-					<input class="btn btn-xs btn-danger" type="submit" value="Delete" name="deletetask">
-				</form>
-			</div>
+    		<div class="col-md-offset-9">
+			<form method="POST" action='profreport.php'>
+				<input type="hidden" name='task_id' value="<?php echo $task_id?>">
+				<input class="btn btn-xs btn-danger" type="submit" value="Delete" name="deletetask">
+			</form>
         </td>
 	</tr>
     <?php endwhile; ?>
